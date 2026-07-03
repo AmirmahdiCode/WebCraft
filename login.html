@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebCraft | ورود و ثبت نام</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f8fafc; --bg2: #f1f5f9; --bg3: #e2e8f0;
+      --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8;
+      --dark: #0f172a; --text: #334155; --text-light: #94a3b8;
+      --white: #ffffff; --red: #f43f5e; --green: #10b981;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: var(--text); min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow: hidden; position: relative;
+    }
+
+    .bg-particles {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; z-index: 0;
+    }
+    .particle {
+      position: absolute; font-size: 50px; color: rgba(99,102,241,0.06);
+      animation: floatAround 22s linear infinite; user-select: none;
+    }
+    .particle:nth-child(1) { top: 5%; left: 8%; animation-delay: 0s; font-size: 70px; }
+    .particle:nth-child(2) { top: 70%; left: 75%; animation-delay: -6s; font-size: 45px; }
+    .particle:nth-child(3) { top: 20%; left: 60%; animation-delay: -11s; font-size: 90px; }
+    .particle:nth-child(4) { top: 80%; left: 15%; animation-delay: -16s; font-size: 40px; }
+    .particle:nth-child(5) { top: 45%; left: 35%; animation-delay: -4s; font-size: 60px; }
+    .particle:nth-child(6) { top: 10%; left: 85%; animation-delay: -13s; font-size: 50px; }
+
+    @keyframes floatAround {
+      0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0.06; }
+      25% { transform: translate(25px, -35px) rotate(90deg) scale(1.1); opacity: 0.1; }
+      50% { transform: translate(-15px, 25px) rotate(180deg) scale(0.85); opacity: 0.04; }
+      75% { transform: translate(-35px, -15px) rotate(270deg) scale(1.05); opacity: 0.08; }
+      100% { transform: translate(0, 0) rotate(360deg) scale(1); opacity: 0.06; }
+    }
+
+    .auth-container {
+      background: rgba(255,255,255,0.97); border-radius: 20px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+      width: 100%; max-width: 440px; overflow: hidden;
+      position: relative; z-index: 1; backdrop-filter: blur(10px);
+    }
+    .auth-header {
+      text-align: center; padding: 32px 24px 20px;
+    }
+    .auth-logo {
+      width: 72px; height: 72px; border-radius: 18px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 6px 20px rgba(99,102,241,0.3);
+    }
+    .auth-logo i { font-size: 32px; color: #fff; }
+    .auth-title { font-size: 22px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+    .auth-subtitle { font-size: 12px; color: var(--text-light); }
+
+    .tab-buttons {
+      display: flex; gap: 0;
+      border-bottom: 2px solid var(--bg2);
+    }
+    .tab-btn {
+      flex: 1; padding: 14px;
+      font-size: 14px; font-weight: 600;
+      background: none; border: none;
+      color: var(--text-light); cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      position: relative;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .tab-btn.active { color: var(--primary); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute; bottom: -2px; left: 20%; right: 20%;
+      height: 2px; background: var(--primary);
+      border-radius: 1px;
+    }
+    .tab-btn:hover { color: var(--primary-dark); }
+
+    .auth-form { padding: 24px 24px 32px; display: none; }
+    .auth-form.active { display: block; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .input-wrapper { position: relative; }
+    .input-wrapper i {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light); font-size: 14px;
+      transition: color 0.3s ease;
+    }
+    .input-wrapper input {
+      width: 100%; padding: 12px 42px 12px 14px;
+      border: 1.5px solid var(--bg3); border-radius: 12px;
+      font-size: 13px; color: var(--dark); background: var(--bg);
+      outline: none; font-family: inherit; transition: all 0.3s ease;
+    }
+    .input-wrapper input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+      background: var(--white);
+    }
+    .input-wrapper input:focus + i { color: var(--primary); }
+    .input-wrapper input::placeholder { color: #c4c8d0; font-size: 11px; }
+
+    .btn-submit {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; border: none;
+      border-radius: 12px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.3s ease; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover {
+      box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+    }
+    .btn-submit:active { transform: scale(0.98); }
+
+    .form-message {
+      text-align: center; font-size: 12px; margin-top: 12px;
+      min-height: 18px; transition: all 0.3s ease;
+    }
+    .form-message.error { color: var(--red); }
+    .form-message.success { color: var(--green); }
+
+    .auth-footer {
+      text-align: center; padding: 16px 24px;
+      border-top: 1px solid var(--bg2);
+      font-size: 11px; color: var(--text-light);
+    }
+
+    .auto-login-status {
+      text-align: center; padding: 24px 20px;
+      color: var(--primary-dark); font-size: 13px;
+    }
+    .auto-login-status i {
+      font-size: 24px; display: block; margin-bottom: 10px;
+      color: var(--green);
+    }
+
+    @media (max-width: 480px) {
+      .auth-container { border-radius: 16px; }
+      .auth-form { padding: 20px 16px 24px; }
+      .auth-header { padding: 24px 16px 16px; }
+      .auth-logo { width: 60px; height: 60px; }
+      .auth-logo i { font-size: 26px; }
+      .auth-title { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-particles">
+    <span class="particle">{</span>
+    <span class="particle">}</span>
+    <span class="particle">&lt;/&gt;</span>
+    <span class="particle">0</span>
+    <span class="particle">1</span>
+    <span class="particle">#</span>
+  </div>
+
+  <div class="auth-container" id="authBox">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <i class="fa-solid fa-cubes"></i>
+      </div>
+      <div class="auth-title">WebCraft</div>
+      <div class="auth-subtitle">سایت بسازید، بدون کدنویسی</div>
+    </div>
+
+    <div id="autoLoginStatus" class="auto-login-status" style="display:none;">
+      <i class="fa-solid fa-circle-notch fa-spin"></i>
+      <span>در حال ورود خودکار...</span>
+    </div>
+
+    <div id="manualAuth" style="display:none;">
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> ورود
+        </button>
+        <button class="tab-btn" onclick="switchTab('register')">
+          <i class="fa-solid fa-user-plus"></i> ثبت نام
+        </button>
+      </div>
+
+      <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>نام کاربری</label>
+          <div class="input-wrapper">
+            <input type="text" id="loginUsername" placeholder="نام کاربری خود را وارد کنید" required>
+            <i class="fa-solid fa-user"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>رمز عبور</label>
+          <div class="input-wrapper">
+            <input type="password" id="loginPassword" placeholder="رمز عبور خود را وارد کنید" required>
+            <i class="fa-solid fa-lock"></i>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-right-to-bracket"></i> ورود به حساب
+        </button>
+        <div class="form-message" id="loginMessage"></div>
+      </form>
+
+      <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>نام کامل</label>
+          <div class="input-wrapper">
+            <input type="text" id="regFullName" placeholder="نام کامل خود را وارد کنید" required>
+            <i class="fa-solid fa-id-card"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>نام کاربری</label>
+          <div class="input-wrapper">
+            <input type="text" id="regUsername" placeholder="نام کاربری دلخواه را وارد کنید" required>
+            <i class="fa-solid fa-user"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>رمز عبور</label>
+          <div class="input-wrapper">
+            <input type="password" id="regPassword" placeholder="حداقل ۴ کاراکتر" minlength="4" required>
+            <i class="fa-solid fa-lock"></i>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-user-plus"></i> ساخت حساب جدید
+        </button>
+        <div class="form-message" id="registerMessage"></div>
+      </form>
+    </div>
+
+    <div class="auth-footer">
+      <i class="fa-solid fa-shield-halved"></i> اطلاعات شما محفوظ می ماند
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxwzQT4V2OKe9Ag1P9tRL5OKB2wsryRdAwrDZ81ZwZYg-H8GdKKzusT8Y4tJbLu1S27/exec';
+    const SESSION_DURATION = 3 * 60 * 60 * 1000;
+
+    let eitaaUserData = null;
+
+    if (window.Eitaa && window.Eitaa.WebApp) {
+      window.Eitaa.WebApp.ready();
+      try {
+        const initData = window.Eitaa.WebApp.initDataUnsafe;
+        if (initData && initData.user) {
+          eitaaUserData = {
+            eitaaId: initData.user.id || '',
+            firstName: initData.user.first_name || '',
+            lastName: initData.user.last_name || '',
+            username: 'eitaa_' + (initData.user.id || Date.now()),
+            fullName: (initData.user.first_name || '') + ' ' + (initData.user.last_name || ''),
+          };
+        }
+      } catch (e) { eitaaUserData = null; }
+    }
+
+    function switchTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach(t => t.classList.remove('active'));
+      if (tab === 'login') {
+        loginForm.classList.add('active');
+        registerForm.classList.remove('active');
+        tabs[0].classList.add('active');
+      } else {
+        registerForm.classList.add('active');
+        loginForm.classList.remove('active');
+        tabs[1].classList.add('active');
+      }
+      document.getElementById('loginMessage').textContent = '';
+      document.getElementById('registerMessage').textContent = '';
+      document.getElementById('loginMessage').className = 'form-message';
+      document.getElementById('registerMessage').className = 'form-message';
+    }
+
+    function checkSession() {
+      const sessionData = localStorage.getItem('webcraft_session');
+      if (!sessionData) return null;
+      try {
+        const session = JSON.parse(sessionData);
+        if (Date.now() - session.timestamp > SESSION_DURATION) {
+          localStorage.removeItem('webcraft_session');
+          return null;
+        }
+        return session.user;
+      } catch (e) {
+        localStorage.removeItem('webcraft_session');
+        return null;
+      }
+    }
+
+    function saveSession(user) {
+      const session = { user: user, timestamp: Date.now() };
+      localStorage.setItem('webcraft_session', JSON.stringify(session));
+    }
+
+    function redirectToDashboard() {
+      window.location.href = 'dashboard.html';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const msgEl = document.getElementById('loginMessage');
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!username || !password) {
+        msgEl.textContent = 'لطفا همه فیلدها را پر کنید';
+        msgEl.className = 'form-message error';
+        return;
+      }
+      msgEl.textContent = 'در حال ورود...';
+      msgEl.className = 'form-message';
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'login', username: username, password: password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          saveSession(data.user);
+          msgEl.textContent = 'ورود موفق! در حال انتقال...';
+          msgEl.className = 'form-message success';
+          setTimeout(redirectToDashboard, 800);
+        } else {
+          msgEl.textContent = data.message || 'نام کاربری یا رمز عبور اشتباه است';
+          msgEl.className = 'form-message error';
+        }
+      } catch (e) {
+        msgEl.textContent = 'خطا در ارتباط با سرور';
+        msgEl.className = 'form-message error';
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const msgEl = document.getElementById('registerMessage');
+      const fullName = document.getElementById('regFullName').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      if (!fullName || !username || !password) {
+        msgEl.textContent = 'لطفا همه فیلدها را پر کنید';
+        msgEl.className = 'form-message error';
+        return;
+      }
+      if (password.length < 4) {
+        msgEl.textContent = 'رمز عبور باید حداقل ۴ کاراکتر باشد';
+        msgEl.className = 'form-message error';
+        return;
+      }
+      msgEl.textContent = 'در حال ثبت نام...';
+      msgEl.className = 'form-message';
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'register', fullName: fullName, username: username, password: password, avatarUrl: 'fa-user' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          msgEl.textContent = 'ثبت نام موفق! در حال ورود...';
+          msgEl.className = 'form-message success';
+          const loginRes = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'login', username: username, password: password })
+          });
+          const loginData = await loginRes.json();
+          if (loginData.success) {
+            saveSession(loginData.user);
+            setTimeout(redirectToDashboard, 600);
+          }
+        } else {
+          msgEl.textContent = data.message || 'خطا در ثبت نام';
+          msgEl.className = 'form-message error';
+        }
+      } catch (e) {
+        msgEl.textContent = 'خطا در ارتباط با سرور';
+        msgEl.className = 'form-message error';
+      }
+    }
+
+    async function autoLoginFromEitaa() {
+      if (!eitaaUserData) return false;
+      const fullName = eitaaUserData.fullName.trim() || 'کاربر ایتا';
+      const username = eitaaUserData.username;
+      const eitaaId = String(eitaaUserData.eitaaId);
+      const autoPassword = 'eitaa_auto_' + eitaaId;
+      try {
+        let loginRes = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'login', username: username, password: autoPassword })
+        });
+        let loginData = await loginRes.json();
+        if (!loginData.success) {
+          const regRes = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'register', fullName: fullName, username: username, password: autoPassword, avatarUrl: 'fa-user' })
+          });
+          await regRes.json();
+          loginRes = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'login', username: username, password: autoPassword })
+          });
+          loginData = await loginRes.json();
+        }
+        if (loginData && loginData.success) {
+          saveSession(loginData.user);
+          return true;
+        }
+      } catch (e) { return false; }
+      return false;
+    }
+
+    (async function init() {
+      const session = checkSession();
+      if (session) { redirectToDashboard(); return; }
+      if (eitaaUserData) {
+        document.getElementById('autoLoginStatus').style.display = 'block';
+        document.getElementById('manualAuth').style.display = 'none';
+        const success = await autoLoginFromEitaa();
+        if (success) {
+          document.getElementById('autoLoginStatus').innerHTML =
+            '<i class="fa-solid fa-circle-check"></i><span>ورود موفق! در حال انتقال...</span>';
+          setTimeout(redirectToDashboard, 600);
+        } else {
+          document.getElementById('autoLoginStatus').style.display = 'none';
+          document.getElementById('manualAuth').style.display = 'block';
+        }
+      } else {
+        document.getElementById('manualAuth').style.display = 'block';
+      }
+    })();
+  </script>
+
+</body>
+</html>
