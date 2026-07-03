@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebCraft | هوش مصنوعی</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f8fafc; --bg2: #f1f5f9; --bg3: #e2e8f0;
+      --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8;
+      --dark: #0f172a; --text: #334155; --text-light: #94a3b8;
+      --white: #ffffff; --red: #f43f5e; --green: #10b981;
+      --purple: #a855f7; --orange: #f59e0b;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    .header {
+      background: var(--white); box-shadow: 0 1px 8px rgba(0,0,0,0.03);
+      padding: 14px 20px; position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid var(--bg3);
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; max-width: 1100px; margin: 0 auto;
+    }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .header-logo {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 12px rgba(99,102,241,0.2);
+    }
+    .header-logo i { font-size: 20px; color: #fff; }
+    .header-title { font-size: 20px; font-weight: 700; color: var(--dark); }
+    .header-subtitle { font-size: 10px; color: var(--text-light); }
+    .header-btns { display: flex; align-items: center; gap: 8px; }
+    .header-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      padding: 8px 14px; border-radius: 10px;
+      transition: all 0.3s ease; white-space: nowrap;
+      font-family: inherit; cursor: pointer; background: none;
+    }
+    .btn-back { color: var(--primary-dark); border: 1.5px solid var(--primary-light); }
+    .btn-back:hover { background: #eef2ff; }
+
+    .main-container { flex: 1; max-width: 800px; width: 100%; margin: 20px auto; padding: 0 16px; }
+
+    .tab-buttons {
+      display: flex; gap: 0; margin-bottom: 16px;
+      background: var(--white); border-radius: 14px; overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid var(--bg3);
+    }
+    .tab-btn {
+      flex: 1; padding: 14px 10px;
+      font-size: 13px; font-weight: 600;
+      background: none; border: none;
+      color: var(--text-light); cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .tab-btn.active { color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+    .tab-btn:hover:not(.active) { color: var(--primary-dark); background: #eef2ff; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .ai-card {
+      background: var(--white); border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden;
+      border: 1px solid var(--bg3);
+    }
+    .ai-card-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--bg3);
+      display: flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    }
+    .ai-card-header i { font-size: 20px; color: var(--primary); }
+    .ai-card-header h3 { font-size: 15px; color: var(--dark); font-weight: 700; }
+    .ai-card-body { padding: 16px; }
+    .ai-card-body textarea {
+      width: 100%; min-height: 140px; padding: 12px;
+      border: 1.5px solid var(--bg3); border-radius: 12px;
+      font-size: 13px; color: var(--dark); background: var(--bg);
+      outline: none; font-family: inherit; resize: vertical;
+      transition: all 0.3s ease;
+    }
+    .ai-card-body textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    }
+
+    .btn-submit {
+      width: 100%; padding: 13px; margin-top: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; border: none;
+      border-radius: 12px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.3); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .result-card {
+      background: var(--white); border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden;
+      border: 1px solid var(--bg3); margin-top: 16px; display: none;
+    }
+    .result-card.show { display: block; }
+    .result-header {
+      padding: 14px 20px; border-bottom: 1px solid var(--bg3);
+      display: flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    }
+    .result-header i { font-size: 18px; color: var(--green); }
+    .result-header h3 { font-size: 14px; color: var(--dark); font-weight: 700; }
+    .result-body {
+      padding: 16px; font-size: 13px; line-height: 1.9; color: var(--text);
+      white-space: pre-wrap; word-break: break-word; max-height: 500px; overflow-y: auto;
+    }
+    .result-body::-webkit-scrollbar { width: 5px; }
+    .result-body::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 10px; }
+
+    .loading-spinner {
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; color: var(--primary);
+    }
+    .loading-spinner i { font-size: 28px; animation: spin 1s linear infinite; }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .footer {
+      text-align: center; padding: 20px; background: var(--white);
+      border-top: 1px solid var(--bg3); margin-top: auto;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .footer-links a {
+      color: var(--primary-dark); font-size: 11px; text-decoration: none;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .footer-links a:hover { color: var(--dark); }
+    .footer-text { font-size: 10px; color: var(--text-light); }
+
+    @media (max-width: 600px) {
+      .tab-btn { font-size: 11px; padding: 12px 6px; gap: 4px; }
+      .tab-btn i { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-right">
+        <div class="header-logo"><i class="fa-solid fa-cubes"></i></div>
+        <div>
+          <div class="header-title">WebCraft</div>
+          <div class="header-subtitle">سایت بسازید، بدون کدنویسی</div>
+        </div>
+      </div>
+      <div class="header-btns">
+        <a href="dashboard.html" class="header-btn btn-back">
+          <i class="fa-solid fa-arrow-right"></i> داشبورد
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <div class="tab-buttons">
+      <button class="tab-btn active" onclick="switchTab('debug')">
+        <i class="fa-solid fa-bug"></i> رفع باگ
+      </button>
+      <button class="tab-btn" onclick="switchTab('idea')">
+        <i class="fa-solid fa-lightbulb"></i> ایده پردازی
+      </button>
+      <button class="tab-btn" onclick="switchTab('code')">
+        <i class="fa-solid fa-code"></i> کدنویسی
+      </button>
+    </div>
+
+    <div class="tab-content active" id="tab-debug">
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <i class="fa-solid fa-bug"></i>
+          <h3>رفع باگ کد</h3>
+        </div>
+        <div class="ai-card-body">
+          <textarea id="debugInput" placeholder="کد خود را اینجا بچسبانید تا مشکل آن را پیدا کنم..."></textarea>
+          <button class="btn-submit" onclick="processAI('debug')">
+            <i class="fa-solid fa-magnifying-glass"></i> تحلیل و رفع باگ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-idea">
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <i class="fa-solid fa-lightbulb"></i>
+          <h3>ایده پردازی</h3>
+        </div>
+        <div class="ai-card-body">
+          <textarea id="ideaInput" placeholder="درباره کسب‌وکار، پروژه یا هر موضوعی که می‌خواهید توضیح دهید تا ایده‌های خلاقانه به شما بدم..."></textarea>
+          <button class="btn-submit" onclick="processAI('idea')">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> دریافت ایده
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-code">
+      <div class="ai-card">
+        <div class="ai-card-header">
+          <i class="fa-solid fa-code"></i>
+          <h3>کدنویسی</h3>
+        </div>
+        <div class="ai-card-body">
+          <textarea id="codeInput" placeholder="توضیح دهید چه چیزی می‌خواهید بسازید تا کد آن را برایتان بنویسم..."></textarea>
+          <button class="btn-submit" onclick="processAI('code')">
+            <i class="fa-solid fa-terminal"></i> تولید کد
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-header">
+        <i class="fa-solid fa-circle-check"></i>
+        <h3>نتیجه</h3>
+      </div>
+      <div class="result-body" id="resultBody">
+        <div class="loading-spinner" id="resultLoading">
+          <i class="fa-solid fa-circle-notch"></i>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="ads.html"><i class="fa-solid fa-ad"></i> رزرو تبلیغات</a>
+      <a href="support.html"><i class="fa-solid fa-headset"></i> پشتیبانی</a>
+    </div>
+    <p class="footer-text">WebCraft — کلیه حقوق محفوظ است</p>
+  </footer>
+
+  <script>
+    const AI_API = 'https://script.google.com/macros/s/AKfycbw6Znap149QC0woxcrERfulj_s2TMLoERIAF3aiV6oagmhHq83rGpa_GOq7pDdKJLz4/exec';
+    const SESSION_DURATION = 3 * 60 * 60 * 1000;
+
+    let currentMode = 'debug';
+    let isProcessing = false;
+
+    class WebCraftApp {
+      constructor() {
+        this.webApp = window.Eitaa && window.Eitaa.WebApp ? window.Eitaa.WebApp : null;
+        if (this.webApp) { this.webApp.ready(); this.webApp.expand(); }
+      }
+    }
+
+    function checkSession() {
+      const sessionData = localStorage.getItem('webcraft_session');
+      if (!sessionData) return null;
+      try {
+        const session = JSON.parse(sessionData);
+        if (Date.now() - session.timestamp > SESSION_DURATION) {
+          localStorage.removeItem('webcraft_session');
+          return null;
+        }
+        return session.user;
+      } catch (e) {
+        localStorage.removeItem('webcraft_session');
+        return null;
+      }
+    }
+
+    function getCurrentUser() {
+      const user = checkSession();
+      return user || { userId: 'guest', username: 'مهمان', fullName: 'کاربر مهمان' };
+    }
+
+    function switchTab(mode) {
+      currentMode = mode;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + mode).classList.add('active');
+      
+      document.getElementById('resultCard').classList.remove('show');
+    }
+
+    function showResult(text) {
+      const card = document.getElementById('resultCard');
+      const body = document.getElementById('resultBody');
+      const loading = document.getElementById('resultLoading');
+      
+      if (loading) loading.style.display = 'none';
+      
+      let formattedText = text
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/```(\w+)?\n?/g, '<pre><code>')
+        .replace(/```/g, '</code></pre>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      
+      body.innerHTML = formattedText;
+      card.classList.add('show');
+      card.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function processAI(mode) {
+      if (isProcessing) return;
+      
+      const inputId = mode + 'Input';
+      const input = document.getElementById(inputId).value.trim();
+      
+      if (!input) {
+        alert('لطفاً متن خود را وارد کنید.');
+        return;
+      }
+      
+      isProcessing = true;
+      
+      const resultCard = document.getElementById('resultCard');
+      const body = document.getElementById('resultBody');
+      body.innerHTML = '<div class="loading-spinner" id="resultLoading"><i class="fa-solid fa-circle-notch"></i></div>';
+      resultCard.classList.add('show');
+      resultCard.scrollIntoView({ behavior: 'smooth' });
+      
+      const buttons = document.querySelectorAll('.btn-submit');
+      buttons.forEach(btn => btn.disabled = true);
+      
+      try {
+        const user = getCurrentUser();
+        const res = await fetch(AI_API, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'processAI',
+            userId: user.userId,
+            userName: user.fullName || user.username,
+            mode: mode,
+            input: input
+          })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          showResult(data.output);
+        } else {
+          showResult('متاسفانه خطایی رخ داد. لطفاً دوباره تلاش کنید.');
+        }
+      } catch (e) {
+        showResult('خطا در ارتباط با سرور. لطفاً بعداً تلاش کنید.');
+      }
+      
+      isProcessing = false;
+      buttons.forEach(btn => btn.disabled = false);
+    }
+
+    (function init() {
+      new WebCraftApp();
+    })();
+  </script>
+
+</body>
+</html>
