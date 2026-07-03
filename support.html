@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebCraft | پشتیبانی</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f8fafc; --bg2: #f1f5f9; --bg3: #e2e8f0;
+      --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8;
+      --dark: #0f172a; --text: #334155; --text-light: #94a3b8;
+      --white: #ffffff; --red: #f43f5e; --green: #10b981;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    .header {
+      background: var(--white); box-shadow: 0 1px 8px rgba(0,0,0,0.03);
+      padding: 14px 20px; position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid var(--bg3);
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; max-width: 1100px; margin: 0 auto;
+    }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .header-logo {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 12px rgba(99,102,241,0.2);
+    }
+    .header-logo i { font-size: 20px; color: #fff; }
+    .header-title { font-size: 20px; font-weight: 700; color: var(--dark); }
+    .header-subtitle { font-size: 10px; color: var(--text-light); }
+    .header-btns { display: flex; align-items: center; gap: 8px; }
+    .header-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      padding: 8px 14px; border-radius: 10px;
+      transition: all 0.3s ease; white-space: nowrap;
+      font-family: inherit; cursor: pointer; background: none;
+    }
+    .btn-back { color: var(--primary-dark); border: 1.5px solid var(--primary-light); }
+    .btn-back:hover { background: #eef2ff; }
+
+    .main-container { flex: 1; max-width: 750px; width: 100%; margin: 20px auto; padding: 0 16px; display: flex; flex-direction: column; }
+
+    .chat-container {
+      background: var(--white); border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden;
+      border: 1px solid var(--bg3); flex: 1; display: flex; flex-direction: column;
+      max-height: 70vh;
+    }
+    .chat-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--bg3);
+      display: flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    }
+    .chat-header i { font-size: 20px; color: var(--primary); }
+    .chat-header h3 { font-size: 15px; color: var(--dark); font-weight: 700; }
+    .chat-header .badge {
+      font-size: 10px; background: var(--green); color: #fff;
+      padding: 3px 8px; border-radius: 10px; margin-right: auto;
+    }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 5px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 10px; }
+
+    .message {
+      max-width: 80%; padding: 10px 14px; border-radius: 14px;
+      font-size: 12px; line-height: 1.7; animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .message.user {
+      align-self: flex-end; background: var(--primary); color: #fff;
+      border-bottom-left-radius: 4px;
+    }
+    .message.support {
+      align-self: flex-start; background: var(--bg2); color: var(--text);
+      border-bottom-right-radius: 4px;
+    }
+    .message.typing {
+      align-self: flex-start; background: var(--bg2); color: var(--text-light);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .typing-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--text-light);
+      animation: bounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .chat-input-area {
+      padding: 12px 16px; border-top: 1px solid var(--bg3);
+      display: flex; gap: 8px; align-items: center;
+    }
+    .chat-input-area input {
+      flex: 1; padding: 11px 16px;
+      border: 1.5px solid var(--bg3); border-radius: 24px;
+      font-size: 13px; color: var(--dark); background: var(--bg);
+      outline: none; font-family: inherit; transition: all 0.3s ease;
+    }
+    .chat-input-area input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    }
+    .btn-send {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; transition: all 0.3s ease; flex-shrink: 0;
+    }
+    .btn-send:hover { box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .topics-hint {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px;
+      border-top: 1px solid var(--bg2);
+    }
+    .topic-chip {
+      font-size: 10px; padding: 4px 10px; border-radius: 12px;
+      background: #eef2ff; color: var(--primary-dark); cursor: pointer;
+      border: none; font-family: inherit; transition: all 0.2s ease;
+    }
+    .topic-chip:hover { background: #e0e7ff; }
+
+    .footer {
+      text-align: center; padding: 20px; background: var(--white);
+      border-top: 1px solid var(--bg3); margin-top: auto;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .footer-links a {
+      color: var(--primary-dark); font-size: 11px; text-decoration: none;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .footer-links a:hover { color: var(--dark); }
+    .footer-text { font-size: 10px; color: var(--text-light); }
+
+    @media (max-width: 600px) {
+      .message { max-width: 90%; }
+      .chat-container { max-height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-right">
+        <div class="header-logo"><i class="fa-solid fa-cubes"></i></div>
+        <div>
+          <div class="header-title">WebCraft</div>
+          <div class="header-subtitle">سایت بسازید، بدون کدنویسی</div>
+        </div>
+      </div>
+      <div class="header-btns">
+        <a href="dashboard.html" class="header-btn btn-back">
+          <i class="fa-solid fa-arrow-right"></i> داشبورد
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <div class="chat-container">
+      <div class="chat-header">
+        <i class="fa-solid fa-headset"></i>
+        <h3>پشتیبانی WebCraft</h3>
+        <span class="badge">AI</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="message support">
+          سلام! من دستیار پشتیبانی WebCraft هستم.<br>
+          چطور می‌تونم کمکت کنم؟ می‌تونی درباره ساخت سایت، کامپوننت‌ها، اشتراک و هر چیزی مربوط به WebCraft ازم بپرسی.
+        </div>
+      </div>
+      <div class="topics-hint">
+        <button class="topic-chip" onclick="sendTopic('چطور یه سایت جدید بسازم؟')">ساخت سایت جدید</button>
+        <button class="topic-chip" onclick="sendTopic('چه پلن‌هایی دارید؟')">پلن‌های اشتراک</button>
+        <button class="topic-chip" onclick="sendTopic('چطور از قالب‌ها استفاده کنم؟')">قالب‌ها</button>
+        <button class="topic-chip" onclick="sendTopic('سایتم رو چطور منتشر کنم؟')">انتشار سایت</button>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="سوال خود را بنویسید..." onkeypress="handleKey(event)">
+        <button class="btn-send" onclick="sendMessage()" id="btnSend">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="ads.html"><i class="fa-solid fa-ad"></i> رزرو تبلیغات</a>
+      <a href="dashboard.html"><i class="fa-solid fa-home"></i> داشبورد</a>
+    </div>
+    <p class="footer-text">WebCraft — کلیه حقوق محفوظ است</p>
+  </footer>
+
+  <script>
+    const SUPPORT_API = 'https://script.google.com/macros/s/AKfycbwjxPgkJhG08FQRgmA7s79cl--C7ylUStLfZHkTjhhAv7NtkTRJzd_--rtUiAkK72nt/exec';
+    const SESSION_DURATION = 3 * 60 * 60 * 1000;
+
+    let isWaiting = false;
+
+    class WebCraftApp {
+      constructor() {
+        this.webApp = window.Eitaa && window.Eitaa.WebApp ? window.Eitaa.WebApp : null;
+        if (this.webApp) { this.webApp.ready(); this.webApp.expand(); }
+      }
+    }
+
+    function checkSession() {
+      const sessionData = localStorage.getItem('webcraft_session');
+      if (!sessionData) return null;
+      try {
+        const session = JSON.parse(sessionData);
+        if (Date.now() - session.timestamp > SESSION_DURATION) {
+          localStorage.removeItem('webcraft_session');
+          return null;
+        }
+        return session.user;
+      } catch (e) {
+        localStorage.removeItem('webcraft_session');
+        return null;
+      }
+    }
+
+    function getCurrentUser() {
+      const user = checkSession();
+      return user || { userId: 'guest', username: 'مهمان', fullName: 'کاربر مهمان' };
+    }
+
+    function addMessage(text, type) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'message ' + type;
+      div.innerHTML = text.replace(/\n/g, '<br>');
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      return div;
+    }
+
+    function addTypingIndicator() {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'message typing';
+      div.id = 'typingIndicator';
+      div.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const indicator = document.getElementById('typingIndicator');
+      if (indicator) indicator.remove();
+    }
+
+    async function sendMessage() {
+      if (isWaiting) return;
+
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const user = getCurrentUser();
+      const userName = user.fullName || user.username || 'کاربر';
+
+      addMessage(message, 'user');
+      input.value = '';
+      input.focus();
+
+      isWaiting = true;
+      document.getElementById('btnSend').disabled = true;
+      addTypingIndicator();
+
+      try {
+        const res = await fetch(SUPPORT_API, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'sendMessage',
+            userId: user.userId || 'guest',
+            userName: userName,
+            message: message
+          })
+        });
+        const data = await res.json();
+
+        removeTypingIndicator();
+
+        if (data.success) {
+          addMessage(data.reply, 'support');
+        } else {
+          addMessage('متاسفانه خطایی رخ داد. دوباره تلاش کنید.', 'support');
+        }
+      } catch (e) {
+        removeTypingIndicator();
+        addMessage('خطا در ارتباط با سرور. لطفاً بعداً تلاش کنید.', 'support');
+      }
+
+      isWaiting = false;
+      document.getElementById('btnSend').disabled = false;
+    }
+
+    function sendTopic(topic) {
+      document.getElementById('chatInput').value = topic;
+      sendMessage();
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter') sendMessage();
+    }
+
+    (function init() {
+      new WebCraftApp();
+      document.getElementById('chatInput').focus();
+    })();
+  </script>
+
+</body>
+</html>
