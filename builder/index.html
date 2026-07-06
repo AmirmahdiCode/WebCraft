@@ -68,7 +68,6 @@
       direction: ltr; text-align: right; background: #eef2ff;
       padding: 8px 12px; border-radius: 8px; word-break: break-all;
     }
-    .domain-preview i { margin-left: 4px; }
 
     .btn-submit {
       width: 100%; padding: 14px;
@@ -131,6 +130,12 @@
       background: var(--red); color: #fff; border-radius: 8px;
       font-size: 11px; font-weight: 600; text-decoration: none;
     }
+
+    .domain-status {
+      font-size: 11px; margin-top: 4px; min-height: 16px;
+    }
+    .domain-status.available { color: var(--green); }
+    .domain-status.taken { color: var(--red); }
   </style>
 </head>
 <body>
@@ -146,7 +151,7 @@
       <div class="limit-warning" id="limitWarning" style="display:none;">
         <i class="fa-solid fa-triangle-exclamation"></i>
         <p id="limitMessage"></p>
-        <a href="plans.html" class="btn-upgrade-link">
+        <a href="../plans.html" class="btn-upgrade-link">
           <i class="fa-solid fa-crown"></i> خرید اشتراک
         </a>
       </div>
@@ -179,9 +184,10 @@
         <div class="form-group">
           <label>دامنه (نام یکتا)</label>
           <div class="input-wrapper">
-            <input type="text" id="domainName" placeholder="مثلاً: my-shop" required oninput="updateDomainPreview()">
+            <input type="text" id="domainName" placeholder="مثلاً: my-shop" required oninput="checkDomain()">
             <i class="fa-solid fa-link"></i>
           </div>
+          <div class="domain-status" id="domainStatus"></div>
           <div class="domain-preview" id="domainPreview">
             <i class="fa-solid fa-globe"></i> .../projects.html?<span id="domainSpan"></span>
           </div>
@@ -215,11 +221,14 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxwzQT4V2OKe9Ag1P9tRL5OKB2wsryRdAwrDZ81ZwZYg-H8GdKKzusT8Y4tJbLu1S27/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyTonkpz4xa6rXY9ngUmpCyeJjipKMMOzDYAtWsmbXtuZEC7-bLIDui9FxG816Azys1/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
     let pendingProjectData = null;
     let userPlanInfo = null;
+    let currentUser = null;
+    let isDomainAvailable = false;
+    let domainCheckTimeout = null;
 
     class WebCraftApp {
       constructor() {
@@ -271,6 +280,60 @@
       }
     }
 
+    async function checkDomain() {
+      const domain = document.getElementById('domainName').value.trim();
+      const statusEl = document.getElementById('domainStatus');
+      const domainSpan = document.getElementById('domainSpan');
+      
+      domainSpan.textContent = domain || '...';
+      
+      if (!domain) {
+        statusEl.textContent = '';
+        statusEl.className = 'domain-status';
+        isDomainAvailable = false;
+        return;
+      }
+
+      if (domain.length < 3) {
+        statusEl.textContent = 'حداقل ۳ کاراکتر';
+        statusEl.className = 'domain-status taken';
+        isDomainAvailable = false;
+        return;
+      }
+
+      if (!/^[a-zA-Z0-9\-_]+$/.test(domain)) {
+        statusEl.textContent = 'فقط حروف انگلیسی، عدد و خط تیره';
+        statusEl.className = 'domain-status taken';
+        isDomainAvailable = false;
+        return;
+      }
+
+      clearTimeout(domainCheckTimeout);
+      domainCheckTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'checkDomain', domain: domain })
+          });
+          const data = await res.json();
+          
+          if (data.success && data.available) {
+            statusEl.textContent = 'دامنه آزاد است';
+            statusEl.className = 'domain-status available';
+            isDomainAvailable = true;
+          } else {
+            statusEl.textContent = 'این دامنه قبلاً استفاده شده';
+            statusEl.className = 'domain-status taken';
+            isDomainAvailable = false;
+          }
+        } catch (e) {
+          statusEl.textContent = 'خطا در بررسی دامنه';
+          statusEl.className = 'domain-status taken';
+          isDomainAvailable = false;
+        }
+      }, 500);
+    }
+
     function updateDomainPreview() {
       const domain = document.getElementById('domainName').value.trim() || '...';
       document.getElementById('domainSpan').textContent = domain;
@@ -286,6 +349,12 @@
 
       if (!projectName || !domainName) {
         document.getElementById('formMessage').textContent = 'نام سایت و دامنه الزامی است';
+        document.getElementById('formMessage').className = 'form-message error';
+        return;
+      }
+
+      if (!isDomainAvailable) {
+        document.getElementById('formMessage').textContent = 'لطفاً یک دامنه آزاد انتخاب کنید';
         document.getElementById('formMessage').className = 'form-message error';
         return;
       }
@@ -322,11 +391,35 @@
         const data = await res.json();
 
         if (data.success) {
+          await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'saveProjectSettings',
+              projectId: data.projectId,
+              domain: pendingProjectData.domainName,
+              settings: JSON.stringify({
+                header: 'yes',
+                textAlign: ['right'],
+                footer: '2',
+                stats: 'no',
+                support: 'no',
+                supportPrompt: '',
+                bodyType: [],
+                color1: '#6366f1',
+                color2: '#f8fafc',
+                color3: '#0f172a',
+                sound1: '',
+                sound2: '',
+                sound3: ''
+              })
+            })
+          });
+
           msgEl.textContent = 'پروژه با موفقیت ساخته شد! در حال انتقال...';
           msgEl.className = 'form-message success';
           
           setTimeout(() => {
-            window.location.href = 'editor.html?project=' + data.projectId + '&domain=' + pendingProjectData.domainName;
+            window.location.href = 'editor.html?project=' + data.projectId;
           }, 1000);
         } else {
           msgEl.textContent = data.message || 'خطا در ساخت پروژه';
@@ -341,8 +434,6 @@
 
       closeConfirmModal();
     }
-
-    let currentUser;
 
     (async function init() {
       new WebCraftApp();
