@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebCraft | ساخت پروژه جدید</title>
+  <title>BlockWeb | ساخت پروژه جدید</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
   <style>
@@ -221,7 +221,7 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwATHkWehDwSXpcb9Ufx4g31fc49pbz3pPTB-154c7BhnsNeNRwDid3Upv6RtjU7r5F/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycby1I5tG6oh2p5pPQQUqoLxVYTtdrOrTj_qzOf1L4gMcJO3n1BtK5szNJihmXmqJZQY/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
     let pendingProjectData = null;
@@ -230,7 +230,7 @@
     let isDomainAvailable = false;
     let domainCheckTimeout = null;
 
-    class WebCraftApp {
+    class BlockWebApp {
       constructor() {
         this.webApp = window.Eitaa && window.Eitaa.WebApp ? window.Eitaa.WebApp : null;
         if (this.webApp) { this.webApp.ready(); this.webApp.expand(); }
@@ -238,17 +238,17 @@
     }
 
     function checkSession() {
-      const sessionData = localStorage.getItem('webcraft_session');
+      const sessionData = localStorage.getItem('blockweb_session');
       if (!sessionData) return null;
       try {
         const session = JSON.parse(sessionData);
         if (Date.now() - session.timestamp > SESSION_DURATION) {
-          localStorage.removeItem('webcraft_session');
+          localStorage.removeItem('blockweb_session');
           return null;
         }
         return session.user;
       } catch (e) {
-        localStorage.removeItem('webcraft_session');
+        localStorage.removeItem('blockweb_session');
         return null;
       }
     }
@@ -415,12 +415,9 @@
             })
           });
 
-          msgEl.textContent = 'پروژه با موفقیت ساخته شد! در حال انتقال...';
+          msgEl.innerHTML = 'پروژه با موفقیت ساخته شد!<br><a href="editor.html?domain=' + pendingProjectData.domainName + '" style="color:#10b981;font-weight:700;text-decoration:underline;">ورود به ویرایشگر</a>';
           msgEl.className = 'form-message success';
-          
-          setTimeout(() => {
-            window.location.href = 'editor.html?domain=' + pendingProjectData.domainName;
-          }, 1000);
+          btnSubmit.disabled = false;
         } else {
           msgEl.textContent = data.message || 'خطا در ساخت پروژه';
           msgEl.className = 'form-message error';
@@ -436,7 +433,7 @@
     }
 
     (async function init() {
-      new WebCraftApp();
+      new BlockWebApp();
       
       currentUser = checkSession();
       if (!currentUser) {
