@@ -221,7 +221,7 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyTonkpz4xa6rXY9ngUmpCyeJjipKMMOzDYAtWsmbXtuZEC7-bLIDui9FxG816Azys1/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwATHkWehDwSXpcb9Ufx4g31fc49pbz3pPTB-154c7BhnsNeNRwDid3Upv6RtjU7r5F/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
     let pendingProjectData = null;
@@ -419,7 +419,7 @@
           msgEl.className = 'form-message success';
           
           setTimeout(() => {
-            window.location.href = 'editor.html?project=' + data.projectId;
+            window.location.href = 'editor.html?domain=' + pendingProjectData.domainName;
           }, 1000);
         } else {
           msgEl.textContent = data.message || 'خطا در ساخت پروژه';
