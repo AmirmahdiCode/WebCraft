@@ -150,6 +150,24 @@
     .summary-list li i { color: var(--primary); width: 20px; text-align: center; }
     .summary-list li span { color: var(--text-light); margin-right: auto; font-size: 11px; }
 
+    .existing-notice {
+      background: #fef3c7; border: 1px solid #fcd34d; border-radius: 12px;
+      padding: 20px; text-align: center; margin-bottom: 16px;
+    }
+    .existing-notice i { font-size: 32px; color: #f59e0b; margin-bottom: 8px; }
+    .existing-notice p { font-size: 13px; color: #92400e; margin-bottom: 16px; }
+    .existing-buttons { display: flex; gap: 10px; justify-content: center; }
+    .btn-reset {
+      padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.3s ease;
+      background: var(--red); color: #fff; border: none;
+    }
+    .btn-keep {
+      padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.3s ease;
+      background: var(--green); color: #fff; border: none;
+    }
+
     @media (max-width: 500px) {
       .option-grid { grid-template-columns: 1fr; }
       .wizard-body { padding: 16px; }
@@ -174,13 +192,29 @@
       <div class="wizard-header">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <h2 id="wizardTitle">ساخت سایت</h2>
-        <p>مرحله <span id="stepNumber">۱</span> از ۸</p>
+        <p id="wizardSubtitle">مرحله <span id="stepNumber">۱</span> از ۸</p>
       </div>
       <div class="progress-bar" id="progressBar"></div>
 
       <div class="wizard-body">
 
-        <div class="step active" id="step1">
+        <div class="step active" id="step0">
+          <h3><i class="fa-solid fa-triangle-exclamation"></i> تنظیمات قبلی</h3>
+          <div class="existing-notice">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <p>این پروژه قبلاً تنظیمات داشته است. آیا می‌خواهید تنظیمات قبلی پاک شود و از نو شروع کنید یا با همان تنظیمات ادامه دهید؟</p>
+            <div class="existing-buttons">
+              <button class="btn-reset" onclick="resetSettings()">
+                <i class="fa-solid fa-trash"></i> پاک کردن و شروع از اول
+              </button>
+              <button class="btn-keep" onclick="keepSettings()">
+                <i class="fa-solid fa-check"></i> ادامه با تنظیمات قبلی
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="step1">
           <h3><i class="fa-solid fa-panel"></i> تنظیمات هدر</h3>
           <p style="font-size:12px;color:var(--text-light);margin-bottom:16px;">آیا سایت شما نیاز به هدر دارد؟</p>
           <div class="option-grid">
@@ -304,7 +338,7 @@
 
       </div>
 
-      <div class="wizard-footer">
+      <div class="wizard-footer" id="wizardFooter">
         <button class="btn-nav btn-prev" id="btnPrev" onclick="prevStep()" style="visibility:hidden;">
           <i class="fa-solid fa-arrow-right"></i> قبلی
         </button>
@@ -317,10 +351,10 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyTonkpz4xa6rXY9ngUmpCyeJjipKMMOzDYAtWsmbXtuZEC7-bLIDui9FxG816Azys1/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwATHkWehDwSXpcb9Ufx4g31fc49pbz3pPTB-154c7BhnsNeNRwDid3Upv6RtjU7r5F/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
-    let currentStep = 1;
+    let currentStep = 0;
     const totalSteps = 8;
     
     let settings = {
@@ -342,6 +376,7 @@
     let projectId = null;
     let domainName = null;
     let currentUser = null;
+    let hasExistingSettings = false;
 
     class WebCraftApp {
       constructor() {
@@ -368,7 +403,7 @@
 
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
-      return { project: params.get('project') };
+      return { domain: params.get('domain') };
     }
 
     function checkPremium(feature) {
@@ -414,15 +449,73 @@
     }
 
     function collectSettings() {
-      settings.color1 = document.getElementById('color1').value;
-      settings.color2 = document.getElementById('color2').value;
-      settings.color3 = document.getElementById('color3').value;
-      settings.sound1 = document.getElementById('sound1').value;
-      settings.sound2 = document.getElementById('sound2').value;
-      settings.sound3 = document.getElementById('sound3').value;
+      if (currentStep === 0) return;
+      settings.color1 = document.getElementById('color1')?.value || settings.color1;
+      settings.color2 = document.getElementById('color2')?.value || settings.color2;
+      settings.color3 = document.getElementById('color3')?.value || settings.color3;
+      settings.sound1 = document.getElementById('sound1')?.value || '';
+      settings.sound2 = document.getElementById('sound2')?.value || '';
+      settings.sound3 = document.getElementById('sound3')?.value || '';
       if (settings.support === 'yes') {
-        settings.supportPrompt = document.getElementById('supportPrompt').value;
+        settings.supportPrompt = document.getElementById('supportPrompt')?.value || '';
       }
+    }
+
+    function resetSettings() {
+      settings = {
+        header: 'yes',
+        textAlign: ['right'],
+        footer: '2',
+        stats: 'no',
+        support: 'no',
+        supportPrompt: '',
+        bodyType: [],
+        color1: '#6366f1',
+        color2: '#f8fafc',
+        color3: '#0f172a',
+        sound1: '',
+        sound2: '',
+        sound3: ''
+      };
+      
+      hasExistingSettings = false;
+      currentStep = 1;
+      
+      document.getElementById('chkRight').checked = true;
+      document.getElementById('chkCenter').checked = false;
+      document.getElementById('chkLeft').checked = false;
+      document.getElementById('chkList').checked = false;
+      document.getElementById('chkButton').checked = false;
+      
+      document.getElementById('color1').value = '#6366f1';
+      document.getElementById('color2').value = '#f8fafc';
+      document.getElementById('color3').value = '#0f172a';
+      document.getElementById('sound1').value = '';
+      document.getElementById('sound2').value = '';
+      document.getElementById('sound3').value = '';
+      
+      document.getElementById('wizardFooter').style.display = 'flex';
+      updateStep();
+    }
+
+    function keepSettings() {
+      hasExistingSettings = false;
+      currentStep = 1;
+      
+      document.getElementById('color1').value = settings.color1;
+      document.getElementById('color2').value = settings.color2;
+      document.getElementById('color3').value = settings.color3;
+      document.getElementById('sound1').value = settings.sound1 || '';
+      document.getElementById('sound2').value = settings.sound2 || '';
+      document.getElementById('sound3').value = settings.sound3 || '';
+      document.getElementById('chkRight').checked = settings.textAlign.includes('right');
+      document.getElementById('chkCenter').checked = settings.textAlign.includes('center');
+      document.getElementById('chkLeft').checked = settings.textAlign.includes('left');
+      document.getElementById('chkList').checked = settings.bodyType.includes('list');
+      document.getElementById('chkButton').checked = settings.bodyType.includes('button');
+      
+      document.getElementById('wizardFooter').style.display = 'flex';
+      updateStep();
     }
 
     function updateSummary() {
@@ -453,9 +546,10 @@
     function updateStep() {
       document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
       document.getElementById('step' + currentStep).classList.add('active');
-      document.getElementById('stepNumber').textContent = currentStep;
+      document.getElementById('stepNumber').textContent = currentStep === 0 ? '...' : currentStep;
+      document.getElementById('wizardSubtitle').textContent = currentStep === 0 ? 'تنظیمات قبلی' : 'مرحله ' + currentStep + ' از ۸';
       
-      document.getElementById('btnPrev').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+      document.getElementById('btnPrev').style.visibility = (currentStep === 0 || currentStep === 1) ? 'hidden' : 'visible';
       
       const btnNext = document.getElementById('btnNext');
       if (currentStep === totalSteps) {
@@ -516,7 +610,7 @@
         console.log('ذخیره در سرور ناموفق');
       }
       
-      localStorage.setItem('wc_settings_' + projectId, JSON.stringify(settings));
+      localStorage.setItem('wc_settings_' + (domainName || projectId), JSON.stringify(settings));
     }
 
     async function saveAndExit() {
@@ -529,28 +623,44 @@
       collectSettings();
       await saveToServer();
       
-      if (projectId) {
-        window.location.href = 'blockly.html?project=' + projectId;
+      if (domainName) {
+        window.location.href = 'blockly.html?domain=' + domainName;
+      }
+    }
+
+    async function getProjectByDomain(domain) {
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getProjectByDomain', domain: domain })
+        });
+        return await res.json();
+      } catch (e) {
+        return null;
       }
     }
 
     async function loadSettingsFromServer() {
-      if (!projectId) return;
+      if (!domainName) return;
       
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'getProjectSettings', projectId: projectId })
-        });
-        const data = await res.json();
-        if (data.success && data.settings) {
-          settings = { ...settings, ...data.settings };
+      const project = await getProjectByDomain(domainName);
+      if (project && project.success) {
+        projectId = project.projectId;
+        
+        if (project.settings && project.settings !== '{}' && project.settings !== '') {
+          try {
+            const parsed = typeof project.settings === 'string' ? JSON.parse(project.settings) : project.settings;
+            if (parsed && Object.keys(parsed).length > 0) {
+              settings = { ...settings, ...parsed };
+              hasExistingSettings = true;
+            }
+          } catch(e) {}
         }
-      } catch (e) {
-        const saved = localStorage.getItem('wc_settings_' + projectId);
-        if (saved) {
-          try { settings = { ...settings, ...JSON.parse(saved) }; } catch(e) {}
-        }
+      }
+      
+      const saved = localStorage.getItem('wc_settings_' + domainName);
+      if (saved && !hasExistingSettings) {
+        try { settings = { ...settings, ...JSON.parse(saved) }; hasExistingSettings = true; } catch(e) {}
       }
     }
 
@@ -564,26 +674,33 @@
       }
       
       const params = getQueryParams();
-      projectId = params.project;
+      domainName = params.domain;
+      
+      if (!domainName) {
+        alert('دامنه پروژه مشخص نشده است.');
+        window.location.href = '../dashboard.html';
+        return;
+      }
       
       await loadSettingsFromServer();
       
-      if (settings.textAlign.length > 0) {
+      if (hasExistingSettings) {
+        currentStep = 0;
+        document.getElementById('wizardFooter').style.display = 'none';
+      } else {
+        currentStep = 1;
+        document.getElementById('color1').value = settings.color1;
+        document.getElementById('color2').value = settings.color2;
+        document.getElementById('color3').value = settings.color3;
+        document.getElementById('sound1').value = settings.sound1 || '';
+        document.getElementById('sound2').value = settings.sound2 || '';
+        document.getElementById('sound3').value = settings.sound3 || '';
         document.getElementById('chkRight').checked = settings.textAlign.includes('right');
         document.getElementById('chkCenter').checked = settings.textAlign.includes('center');
         document.getElementById('chkLeft').checked = settings.textAlign.includes('left');
-      }
-      if (settings.bodyType.length > 0) {
         document.getElementById('chkList').checked = settings.bodyType.includes('list');
         document.getElementById('chkButton').checked = settings.bodyType.includes('button');
       }
-      
-      document.getElementById('color1').value = settings.color1;
-      document.getElementById('color2').value = settings.color2;
-      document.getElementById('color3').value = settings.color3;
-      document.getElementById('sound1').value = settings.sound1 || '';
-      document.getElementById('sound2').value = settings.sound2 || '';
-      document.getElementById('sound3').value = settings.sound3 || '';
       
       updateStep();
     })();
