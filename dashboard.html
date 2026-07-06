@@ -232,7 +232,7 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxwzQT4V2OKe9Ag1P9tRL5OKB2wsryRdAwrDZ81ZwZYg-H8GdKKzusT8Y4tJbLu1S27/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyTonkpz4xa6rXY9ngUmpCyeJjipKMMOzDYAtWsmbXtuZEC7-bLIDui9FxG816Azys1/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
     class WebCraftApp {
@@ -341,7 +341,7 @@
 
       if (projects && projects.length > 0) {
         projectsGrid.innerHTML = projects.map(p => `
-          <div class="product-card" onclick="window.location.href='project.html?id=${p.projectId}'">
+          <div class="product-card" onclick="window.location.href='builder/editor.html?project=${p.projectId}'">
             <div class="product-image placeholder" style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);">
               <i class="fa-solid fa-globe" style="font-size:36px;color:#6366f1;"></i>
             </div>
@@ -349,10 +349,10 @@
               <div class="product-name">${p.projectName || 'بدون نام'}</div>
               <div class="product-meta">
                 <span class="product-category">پروژه من</span>
-                <span class="product-price" style="color:#6366f1;">مشاهده</span>
+                <span class="product-price" style="color:#6366f1;">ویرایش</span>
               </div>
               <div class="product-like-row">
-                <span class="product-likes-count"><i class="fa-solid fa-link"></i> ${p.projectLink || 'پیش نمایش'}</span>
+                <span class="product-likes-count"><i class="fa-solid fa-link"></i> ${p.domain || p.projectLink || 'پیش نمایش'}</span>
               </div>
             </div>
           </div>
