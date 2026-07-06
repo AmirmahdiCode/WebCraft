@@ -500,7 +500,6 @@
 
     function keepSettings() {
       hasExistingSettings = false;
-      currentStep = 1;
       
       document.getElementById('color1').value = settings.color1;
       document.getElementById('color2').value = settings.color2;
@@ -514,8 +513,7 @@
       document.getElementById('chkList').checked = settings.bodyType.includes('list');
       document.getElementById('chkButton').checked = settings.bodyType.includes('button');
       
-      document.getElementById('wizardFooter').style.display = 'flex';
-      updateStep();
+      saveAndGoToBlockly();
     }
 
     function updateSummary() {
@@ -581,7 +579,7 @@
         currentStep++;
         updateStep();
       } else {
-        saveAndContinue();
+        saveAndGoToBlockly();
       }
     }
 
@@ -619,7 +617,7 @@
       alert('تنظیمات ذخیره شد.');
     }
 
-    async function saveAndContinue() {
+    async function saveAndGoToBlockly() {
       collectSettings();
       await saveToServer();
       
@@ -646,6 +644,12 @@
       const project = await getProjectByDomain(domainName);
       if (project && project.success) {
         projectId = project.projectId;
+        
+        if (project.ownerId !== currentUser.userId) {
+          alert('شما مالک این پروژه نیستید.');
+          window.location.href = '../dashboard.html';
+          return;
+        }
         
         if (project.settings && project.settings !== '{}' && project.settings !== '') {
           try {
