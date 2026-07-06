@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebCraft | ورود و ثبت نام</title>
+  <title>BlockWeb | ورود و ثبت نام</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
   <style>
@@ -178,7 +178,7 @@
       <div class="auth-logo">
         <i class="fa-solid fa-cubes"></i>
       </div>
-      <div class="auth-title">WebCraft</div>
+      <div class="auth-title">BlockWeb</div>
       <div class="auth-subtitle">سایت بسازید، بدون کدنویسی</div>
     </div>
 
@@ -253,7 +253,7 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxwzQT4V2OKe9Ag1P9tRL5OKB2wsryRdAwrDZ81ZwZYg-H8GdKKzusT8Y4tJbLu1S27/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycby1I5tG6oh2p5pPQQUqoLxVYTtdrOrTj_qzOf1L4gMcJO3n1BtK5szNJihmXmqJZQY/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
     let eitaaUserData = null;
@@ -295,24 +295,24 @@
     }
 
     function checkSession() {
-      const sessionData = localStorage.getItem('webcraft_session');
+      const sessionData = localStorage.getItem('blockweb_session');
       if (!sessionData) return null;
       try {
         const session = JSON.parse(sessionData);
         if (Date.now() - session.timestamp > SESSION_DURATION) {
-          localStorage.removeItem('webcraft_session');
+          localStorage.removeItem('blockweb_session');
           return null;
         }
         return session.user;
       } catch (e) {
-        localStorage.removeItem('webcraft_session');
+        localStorage.removeItem('blockweb_session');
         return null;
       }
     }
 
     function saveSession(user) {
       const session = { user: user, timestamp: Date.now() };
-      localStorage.setItem('webcraft_session', JSON.stringify(session));
+      localStorage.setItem('blockweb_session', JSON.stringify(session));
     }
 
     function redirectToDashboard() {
