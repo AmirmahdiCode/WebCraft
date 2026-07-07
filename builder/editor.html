@@ -146,15 +146,19 @@
     .existing-notice p { font-size: 13px; color: #92400e; margin-bottom: 16px; }
     .existing-buttons { display: flex; gap: 10px; justify-content: center; }
     .btn-reset {
-      padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      padding: 8px 18px; border-radius: 10px; font-size: 12px; font-weight: 600;
       cursor: pointer; font-family: inherit; transition: all 0.3s ease;
       background: var(--red); color: #fff; border: none;
+      display: flex; align-items: center; gap: 6px;
     }
+    .btn-reset i { font-size: 12px; }
     .btn-keep {
-      padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      padding: 8px 18px; border-radius: 10px; font-size: 12px; font-weight: 600;
       cursor: pointer; font-family: inherit; transition: all 0.3s ease;
       background: var(--green); color: #fff; border: none;
+      display: flex; align-items: center; gap: 6px;
     }
+    .btn-keep i { font-size: 12px; }
 
     @media (max-width: 500px) {
       .option-grid { grid-template-columns: 1fr; }
@@ -187,10 +191,10 @@
       <p>این پروژه قبلاً تنظیمات داشته است. ادامه دهید یا از نو شروع کنید؟</p>
       <div class="existing-buttons">
         <button class="btn-reset" onclick="resetSettings()">
-          <i class="fa-solid fa-trash"></i> پاک کردن و شروع از اول
+          <i class="fa-solid fa-trash-can"></i> پاک کردن و شروع از اول
         </button>
         <button class="btn-keep" onclick="keepSettings()">
-          <i class="fa-solid fa-check"></i> ادامه با تنظیمات قبلی
+          <i class="fa-solid fa-arrow-right"></i> ادامه با تنظیمات قبلی
         </button>
       </div>
     </div>
@@ -339,7 +343,7 @@
 
   </div>
 
-  <script>
+<script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby1I5tG6oh2p5pPQQUqoLxVYTtdrOrTj_qzOf1L4gMcJO3n1BtK5szNJihmXmqJZQY/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
