@@ -151,6 +151,11 @@
       color: var(--green); background: #ecfdf5;
     }
 
+    .timer-notice {
+      text-align: center; padding: 8px; font-size: 11px; color: var(--orange);
+      background: #fef3c7; border-radius: 8px; margin-top: 8px; display: none;
+    }
+
     .footer {
       text-align: center; padding: 20px; background: var(--white);
       border-top: 1px solid var(--bg3); margin-top: auto;
@@ -215,6 +220,7 @@
           <button class="btn-submit" onclick="processAI('debug')">
             <i class="fa-solid fa-magnifying-glass"></i> تحلیل و رفع باگ
           </button>
+          <div class="timer-notice" id="timerNotice"></div>
         </div>
       </div>
     </div>
@@ -230,6 +236,7 @@
           <button class="btn-submit" onclick="processAI('idea')">
             <i class="fa-solid fa-wand-magic-sparkles"></i> دریافت ایده
           </button>
+          <div class="timer-notice" id="timerNotice"></div>
         </div>
       </div>
     </div>
@@ -243,8 +250,9 @@
         <div class="ai-card-body">
           <textarea id="codeInput" placeholder="توضیح دهید چه چیزی می‌خواهید بسازید تا کد آن را برایتان بنویسم..."></textarea>
           <button class="btn-submit" onclick="processAI('code')">
-            <i class="fa-solid fa-terminal"></i> تولید کد
+            <i class="fa-solid fa-microchip"></i> تولید کد
           </button>
+          <div class="timer-notice" id="timerNotice"></div>
         </div>
       </div>
     </div>
@@ -274,10 +282,12 @@
   <script>
     const POLLINATIONS_API = 'https://text.pollinations.ai/';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
+    const REQUEST_COOLDOWN = 60000; // ۶۰ ثانیه
 
     let currentMode = 'debug';
     let isProcessing = false;
     let isPremiumUser = false;
+    let cooldownTimer = null;
 
     class BlockWebApp {
       constructor() {
@@ -300,6 +310,40 @@
         localStorage.removeItem('blockweb_session');
         return null;
       }
+    }
+
+    function canMakeRequest() {
+      const lastRequest = localStorage.getItem('bw_last_ai_request');
+      if (!lastRequest) return true;
+      
+      const elapsed = Date.now() - parseInt(lastRequest);
+      return elapsed >= REQUEST_COOLDOWN;
+    }
+
+    function saveRequestTime() {
+      localStorage.setItem('bw_last_ai_request', Date.now().toString());
+    }
+
+    function showCooldownNotice() {
+      const notice = document.getElementById('timerNotice');
+      if (!notice) return;
+      
+      notice.style.display = 'block';
+      
+      clearInterval(cooldownTimer);
+      
+      let remaining = 60;
+      notice.textContent = 'لطفاً ' + remaining + ' ثانیه صبر کنید...';
+      
+      cooldownTimer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          notice.style.display = 'none';
+          clearInterval(cooldownTimer);
+        } else {
+          notice.textContent = 'لطفاً ' + remaining + ' ثانیه صبر کنید...';
+        }
+      }, 1000);
     }
 
     function unlockCodeTab() {
@@ -332,9 +376,6 @@
     function showResult(text) {
       const card = document.getElementById('resultCard');
       const body = document.getElementById('resultBody');
-      const loading = document.getElementById('resultLoading');
-      
-      if (loading) loading.style.display = 'none';
       
       let formattedText = text
         .replace(/</g, '&lt;')
@@ -352,11 +393,11 @@
     function getPromptForMode(mode, input) {
       switch (mode) {
         case 'debug':
-          return 'تو یک برنامه‌نویس ارشد و متخصص رفع باگ هستی. کد زیر رو تحلیل کن، مشکلش رو پیدا کن، توضیح بده و کد اصلاح شده رو بنویس. پاسخ رو به فارسی بده.\n\nکد:\n' + input;
+          return 'تو یک برنامه\u200Cنویس ارشد و متخصص رفع باگ هستی. کد زیر رو تحلیل کن، مشکلش رو پیدا کن، توضیح بده و کد اصلاح شده رو بنویس. پاسخ رو به فارسی بده.\n\nکد:\n' + input;
         case 'idea':
-          return 'تو یک مشاور خلاق و ایده‌پرداز حرفه‌ای هستی. برای موضوع زیر ۳ تا ۵ ایده خلاقانه و عملی ارائه بده. هر ایده رو در ۲-۳ خط توضیح بده و شماره‌گذاری کن. پاسخ رو به فارسی بده.\n\nموضوع:\n' + input;
+          return 'تو یک مشاور خلاق و ایده\u200Cپرداز حرفه\u200Cای هستی. برای موضوع زیر ۳ تا ۵ ایده خلاقانه و عملی ارائه بده. هر ایده رو در ۲-۳ خط توضیح بده و شماره\u200Cگذاری کن. پاسخ رو به فارسی بده.\n\nموضوع:\n' + input;
         case 'code':
-          return 'تو یک برنامه‌نویس حرفه‌ای هستی. بر اساس توضیحات زیر، کد HTML/CSS/JavaScript تمیز و کامل بنویس. کد رو داخل بلاک کد قرار بده و توضیح کوتاه فارسی بنویس.\n\nدرخواست:\n' + input;
+          return 'تو یک برنامه\u200Cنویس حرفه\u200Cای هستی. بر اساس توضیحات زیر، کد HTML/CSS/JavaScript تمیز و کامل بنویس. کد رو داخل بلاک کد قرار بده و توضیح کوتاه فارسی بنویس.\n\nدرخواست:\n' + input;
         default:
           return input;
       }
@@ -365,6 +406,11 @@
     async function processAI(mode) {
       if (isProcessing) return;
       if (mode === 'code' && !isPremiumUser) return;
+
+      if (!canMakeRequest()) {
+        showCooldownNotice();
+        return;
+      }
       
       const inputId = mode + 'Input';
       const input = document.getElementById(inputId).value.trim();
@@ -378,12 +424,14 @@
       
       const resultCard = document.getElementById('resultCard');
       const body = document.getElementById('resultBody');
-      body.innerHTML = '<div class="loading-spinner" id="resultLoading"><i class="fa-solid fa-circle-notch"></i></div>';
+      body.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-circle-notch"></i></div>';
       resultCard.classList.add('show');
       resultCard.scrollIntoView({ behavior: 'smooth' });
       
       const buttons = document.querySelectorAll('.btn-submit');
       buttons.forEach(btn => btn.disabled = true);
+      
+      saveRequestTime();
       
       try {
         const prompt = getPromptForMode(mode, input);
@@ -395,10 +443,10 @@
         });
         const text = await res.text();
         
-        if (text && text.trim()) {
+        if (text && text.trim() && !text.includes('Queue full')) {
           showResult(text);
         } else {
-          showResult('متاسفانه سیستم در حال حاضر در دسترس نیست. لطفاً بعداً تلاش کنید.');
+          showResult('متاسفانه سیستم در حال حاضر شلوغ است. لطفاً ۶۰ ثانیه صبر کنید و دوباره تلاش کنید.');
         }
       } catch (e) {
         showResult('خطا در ارتباط با سرور. لطفاً بعداً تلاش کنید.');
