@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebCraft | بسته‌های اشتراک</title>
+  <title>BlockWeb | بسته‌های اشتراک</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
   <style>
@@ -20,7 +20,6 @@
       background: var(--bg); color: var(--text); min-height: 100vh;
       display: flex; flex-direction: column;
     }
-    
     .header {
       background: var(--white); box-shadow: 0 1px 8px rgba(0,0,0,0.03);
       padding: 14px 20px; position: sticky; top: 0; z-index: 100;
@@ -144,7 +143,7 @@
       <div class="header-right">
         <div class="header-logo"><i class="fa-solid fa-cubes"></i></div>
         <div>
-          <div class="header-title">WebCraft</div>
+          <div class="header-title">BlockWeb</div>
         </div>
       </div>
       <div class="header-btns">
@@ -172,14 +171,14 @@
       <a href="ads.html"><i class="fa-solid fa-ad"></i> رزرو تبلیغات</a>
       <a href="support.html"><i class="fa-solid fa-headset"></i> پشتیبانی</a>
     </div>
-    <p class="footer-text">WebCraft — کلیه حقوق محفوظ است</p>
+    <p class="footer-text">BlockWeb — کلیه حقوق محفوظ است</p>
   </footer>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby1I5tG6oh2p5pPQQUqoLxVYTtdrOrTj_qzOf1L4gMcJO3n1BtK5szNJihmXmqJZQY/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
-    class WebCraftApp {
+    class BlockWebApp {
       constructor() {
         this.webApp = window.Eitaa && window.Eitaa.WebApp ? window.Eitaa.WebApp : null;
         if (this.webApp) { this.webApp.ready(); this.webApp.expand(); }
@@ -187,23 +186,23 @@
     }
 
     function checkSession() {
-      const sessionData = localStorage.getItem('webcraft_session');
+      const sessionData = localStorage.getItem('blockweb_session');
       if (!sessionData) return null;
       try {
         const session = JSON.parse(sessionData);
         if (Date.now() - session.timestamp > SESSION_DURATION) {
-          localStorage.removeItem('webcraft_session');
+          localStorage.removeItem('blockweb_session');
           return null;
         }
         return session.user;
       } catch (e) {
-        localStorage.removeItem('webcraft_session');
+        localStorage.removeItem('blockweb_session');
         return null;
       }
     }
 
     function selectPlan(planId, planName, price, maxProjects) {
-      localStorage.setItem('wc_selected_plan', JSON.stringify({
+      localStorage.setItem('bw_selected_plan', JSON.stringify({
         type: 'plan',
         planId: planId,
         planName: planName,
@@ -246,7 +245,7 @@
               </div>
               <div class="plan-body">
                 <ul class="plan-features">
-                  <li><i class="fa-solid fa-check"></i> ساخت سایت با WebCraft</li>
+                  <li><i class="fa-solid fa-check"></i> ساخت سایت با BlockWeb</li>
                   <li><i class="fa-solid fa-check"></i> انتخاب دامنه اختصاصی</li>
                   <li><i class="fa-solid fa-check"></i> تنظیمات ظاهری پایه</li>
                   <li><i class="fa-solid fa-check"></i> ۳ رنگ + ۳ صوت</li>
@@ -284,7 +283,7 @@
     }
 
     (function init() {
-      new WebCraftApp();
+      new BlockWebApp();
       
       const user = checkSession();
       if (!user) {
