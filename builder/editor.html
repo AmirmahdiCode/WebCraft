@@ -339,7 +339,7 @@
 
   </div>
 
-<script>
+  <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby1I5tG6oh2p5pPQQUqoLxVYTtdrOrTj_qzOf1L4gMcJO3n1BtK5szNJihmXmqJZQY/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
 
@@ -506,12 +506,12 @@
       updateAllCards();
     }
 
-    function keepSettings() {
+    async function keepSettings() {
       hasExistingSettings = false;
       
       document.getElementById('existingNotice').style.display = 'none';
-      document.querySelectorAll('.section-card').forEach(c => c.style.display = '');
-      document.querySelector('.btn-submit').style.display = '';
+      document.getElementById('loadingContainer').style.display = 'flex';
+      document.getElementById('mainContainer').classList.remove('loaded');
       
       document.getElementById('color1').value = settings.color1;
       document.getElementById('color2').value = settings.color2;
@@ -520,9 +520,12 @@
       document.getElementById('sound2').value = settings.sound2 || '';
       document.getElementById('sound3').value = settings.sound3 || '';
       
-      updateAllCards();
+      collectSettings();
+      await saveToServer();
       
-      saveAndGoToBlockly();
+      if (domainName) {
+        window.location.href = 'blockly.html?domain=' + domainName;
+      }
     }
 
     function updateAllCards() {
@@ -591,15 +594,6 @@
     }
 
     async function saveAndContinue() {
-      collectSettings();
-      await saveToServer();
-      
-      if (domainName) {
-        window.location.href = 'blockly.html?domain=' + domainName;
-      }
-    }
-
-    async function saveAndGoToBlockly() {
       collectSettings();
       await saveToServer();
       
