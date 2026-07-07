@@ -143,10 +143,11 @@
     }
 
     .lock-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 10px; color: var(--orange); background: #fef3c7;
-      padding: 3px 8px; border-radius: 8px;
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 9px; color: #065f46; background: #d1fae5;
+      padding: 2px 7px; border-radius: 6px;
     }
+    .lock-badge i { font-size: 8px; }
     .lock-badge.unlocked {
       color: var(--green); background: #ecfdf5;
     }
@@ -245,7 +246,7 @@
       <div class="ai-card">
         <div class="ai-card-header">
           <i class="fa-solid fa-microchip"></i>
-          <h3>کدنویسی <span class="lock-badge" id="lockCodeHeader"><i class="fa-solid fa-tic"></i> پرومیوم</span></h3>
+          <h3>کدنویسی <span class="lock-badge" id="lockCodeHeader"><i class="fa-solid fa-crown"></i> پرومیوم</span></h3>
         </div>
         <div class="ai-card-body">
           <textarea id="codeInput" placeholder="توضیح دهید چه چیزی می‌خواهید بسازید تا کد آن را برایتان بنویسم..."></textarea>
@@ -282,7 +283,7 @@
   <script>
     const POLLINATIONS_API = 'https://text.pollinations.ai/';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
-    const REQUEST_COOLDOWN = 60000; // ۶۰ ثانیه
+    const REQUEST_COOLDOWN = 60000;
 
     let currentMode = 'debug';
     let isProcessing = false;
