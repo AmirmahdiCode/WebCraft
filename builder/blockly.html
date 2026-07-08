@@ -229,7 +229,7 @@
     .form-group { margin-bottom: 8px; }
     .form-group label { display: block; font-size: 9px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
     .form-group input, .form-group select, .form-group textarea {
-      width: 100%; padding: 7px 9px; border: 1.5px solid var(--bg3); border-radius: 6px;
+      width: 100%; padding: 7px 9px; border: 1.5px solid(var(--bg3)); border-radius: 6px;
       font-size: 10px; color: var(--dark); background: var(--bg);
       outline: none; font-family: inherit;
     }
@@ -276,16 +276,16 @@
       <span class="header-title">BlockWeb Builder</span>
     </div>
     <div class="header-btns">
-      <button class="btn-h btn-save" onclick="saveBlocks()"><i class="fa-solid fa-save"></i> ذخیره</button>
-      <button class="btn-h btn-download" onclick="downloadAll()"><i class="fa-solid fa-download"></i> دانلود</button>
+      <button class="btn-h btn-save" onclick="saveB()"><i class="fa-solid fa-save"></i> ذخیره</button>
+      <button class="btn-h btn-download" onclick="dlAll()"><i class="fa-solid fa-download"></i> دانلود</button>
       <a href="../dashboard.html" class="btn-h btn-exit"><i class="fa-solid fa-arrow-right"></i> خروج</a>
     </div>
   </header>
 
   <div class="tab-buttons">
-    <button class="tab-btn active" onclick="switchTab('blocks')"><i class="fa-solid fa-cubes"></i> بلوک</button>
-    <button class="tab-btn" onclick="switchTab('code')"><i class="fa-solid fa-code"></i> کد</button>
-    <button class="tab-btn locked" onclick="switchTab('preview')"><i class="fa-solid fa-eye"></i> پیش‌نمایش <span class="lock-badge"><i class="fa-solid fa-crown"></i> پرومیوم</span></button>
+    <button class="tab-btn active" onclick="swT('blocks')"><i class="fa-solid fa-cubes"></i> بلوک</button>
+    <button class="tab-btn" onclick="swT('code')"><i class="fa-solid fa-code"></i> کد</button>
+    <button class="tab-btn locked" onclick="swT('preview')"><i class="fa-solid fa-eye"></i> پیش‌نمایش <span class="lock-badge"><i class="fa-solid fa-crown"></i> پرومیوم</span></button>
   </div>
 
   <div class="main-container">
@@ -301,10 +301,10 @@
 
           <div class="page-settings-bar" id="pageSettingsBar">
             <span style="font-size:9px;font-weight:700;color:var(--dark);"><i class="fa-solid fa-gear"></i> تنظیمات:</span>
-            <div class="setting-group"><label>هدر</label><input type="color" id="psHeaderColor" value="#6366f1" onchange="updatePageSetting('headerColor', this.value)"></div>
-            <div class="setting-group"><label>بادی</label><input type="color" id="psBodyColor" value="#f8fafc" onchange="updatePageSetting('bodyColor', this.value)"></div>
-            <div class="setting-group"><label>فوتر</label><input type="color" id="psFooterColor" value="#1e293b" onchange="updatePageSetting('footerColor', this.value)"></div>
-            <div class="setting-group"><label>انیمیشن</label><select id="psAnimation" onchange="updatePageSetting('animation', this.value)">
+            <div class="setting-group"><label>هدر</label><input type="color" id="psHeaderColor" value="#6366f1" onchange="ups('hc', this.value)"></div>
+            <div class="setting-group"><label>بادی</label><input type="color" id="psBodyColor" value="#f8fafc" onchange="ups('bc', this.value)"></div>
+            <div class="setting-group"><label>فوتر</label><input type="color" id="psFooterColor" value="#1e293b" onchange="ups('fc', this.value)"></div>
+            <div class="setting-group"><label>انیمیشن</label><select id="psAnimation" onchange="ups('an', this.value)">
               <option value="">بدون</option><option value="fade">محو</option><option value="slide">اسلاید</option>
             </select></div>
           </div>
@@ -322,7 +322,7 @@
           <h4><i class="fa-solid fa-files"></i> صفحات</h4>
           <div id="pageTabs" style="flex:1;overflow-y:auto;"></div>
           <button class="btn-add-page" onclick="addPage()"><i class="fa-solid fa-plus"></i> صفحه جدید</button>
-          <button class="btn-add-container" onclick="addContainer()"><i class="fa-solid fa-square-plus"></i> محدوده جدید</button>
+          <button class="btn-add-container" onclick="addC()"><i class="fa-solid fa-square-plus"></i> محدوده جدید</button>
         </div>
 
       </div>
@@ -346,13 +346,13 @@
     <div class="modal">
       <div class="modal-header">
         <h3 id="modalTitle">ویرایش بلوک</h3>
-        <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+        <button class="modal-close" onclick="closeM()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
-  <script>
+<script>
     const API = 'https://script.google.com/macros/s/AKfycbxNtG79HTd2nfld3Hd1wdUyumvGqsQgE7nrog6F6xpdB7RkYx8Zl_tGlxvMMozaoQT3/exec';
     const SESS = 10800000;
     let pid = null, domain = null, user = null, wiz = null, isPrem = false;
