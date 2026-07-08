@@ -62,8 +62,6 @@
       font-size: 12px; color: var(--text-light); margin-bottom: 8px;
       display: flex; align-items: center; gap: 6px;
     }
-    .toolbox h4 i { font-size: 11px; }
-
     .block-item {
       padding: 10px 12px; border-radius: 10px; margin-bottom: 6px;
       cursor: grab; font-size: 12px; font-weight: 600; color: #fff;
@@ -94,33 +92,34 @@
 
     .tree-block {
       display: flex; align-items: flex-start; gap: 0;
-      margin-bottom: 8px; position: relative;
+      margin-bottom: 6px; position: relative;
     }
     .tree-children {
       display: flex; flex-direction: column; gap: 4px;
-      border-right: 2px solid var(--bg3); margin-right: 16px; padding-right: 12px;
+      border-right: 2px solid var(--bg3); margin-right: 12px; padding-right: 10px;
     }
-    .tree-node {
-      display: flex; align-items: center; gap: 4px;
-    }
+    .tree-node { display: flex; align-items: center; gap: 4px; position: relative; }
     .node-card {
       padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
       color: #fff; display: flex; align-items: center; gap: 8px;
       cursor: pointer; position: relative; min-width: 80px;
+      transition: all 0.2s ease;
     }
+    .node-card:hover { filter: brightness(1.1); }
     .node-card i { font-size: 12px; }
     .node-green { background: var(--green); }
     .node-red { background: var(--red); }
     .node-yellow { background: var(--yellow); color: #0f172a; }
     .node-blue { background: var(--blue); }
     .node-violet { background: var(--violet); }
-
-    .connector-line {
-      width: 20px; height: 2px; background: var(--bg3); flex-shrink: 0;
+    .node-delete {
+      position: absolute; top: -8px; left: -8px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--red); color: #fff; border: none;
+      cursor: pointer; font-size: 10px; display: none;
+      align-items: center; justify-content: center; z-index: 10;
     }
-    .connector-vertical {
-      width: 2px; background: var(--bg3); flex-shrink: 0;
-    }
+    .node-card:hover .node-delete { display: flex; }
 
     .empty-state {
       text-align: center; padding: 60px 20px; color: var(--text-light);
@@ -129,19 +128,6 @@
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .tab-buttons {
-      display: flex; gap: 4px; margin-bottom: 12px;
-      background: var(--white); border-radius: 10px; padding: 4px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.03);
-    }
-    .tab-btn {
-      flex: 1; padding: 8px; font-size: 11px; font-weight: 600;
-      background: none; border: none; color: var(--text-light);
-      cursor: pointer; border-radius: 8px; transition: all 0.2s ease;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      font-family: inherit;
-    }
-    .tab-btn.active { background: var(--primary); color: #fff; }
 
     .code-output {
       background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 12px;
@@ -154,11 +140,49 @@
       background: #fff;
     }
 
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 200;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 16px;
+      width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+    .modal-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--bg3);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { font-size: 15px; color: var(--dark); }
+    .modal-close {
+      background: none; border: none; font-size: 16px; color: var(--text-light);
+      cursor: pointer; padding: 4px;
+    }
+    .modal-body { padding: 16px 20px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--bg3); border-radius: 8px;
+      font-size: 12px; color: var(--dark); background: var(--bg);
+      outline: none; font-family: inherit; transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.1);
+    }
+    .btn-apply {
+      width: 100%; padding: 11px; background: var(--primary); color: #fff;
+      border: none; border-radius: 10px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; margin-top: 6px;
+    }
+    .btn-apply:hover { background: var(--primary-dark); }
+
     @media (max-width: 768px) {
       .builder-layout { flex-direction: column; }
       .toolbox { width: 100%; border-left: none; border-top: 1px solid var(--bg3); display: flex; flex-wrap: wrap; gap: 6px; }
       .toolbox h4 { display: none; }
-      .block-item { flex: 1; min-width: 90px; justify-content: center; font-size: 10px; padding: 8px; }
+      .block-item { flex: 1; min-width: 80px; justify-content: center; font-size: 10px; padding: 8px; }
     }
   </style>
 </head>
@@ -225,6 +249,16 @@
 
   </div>
 
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">ویرایش بلوک</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbxNtG79HTd2nfld3Hd1wdUyumvGqsQgE7nrog6F6xpdB7RkYx8Zl_tGlxvMMozaoQT3/exec';
     const SESSION_DURATION = 3 * 60 * 60 * 1000;
@@ -234,6 +268,7 @@
     let currentUser = null;
     let treeData = { blocks: [] };
     let draggedType = null;
+    let editingBlock = null;
 
     class BlockWebApp {
       constructor() {
@@ -287,11 +322,13 @@
 
       if (!draggedType) return;
 
-      addBlock(draggedType);
+      const block = createNewBlock(draggedType);
+      treeData.blocks.push(block);
+      renderTree();
       draggedType = null;
     }
 
-    function addBlock(type) {
+    function createNewBlock(type) {
       const block = {
         id: 'b_' + Date.now(),
         type: type,
@@ -300,107 +337,204 @@
         children: []
       };
 
-      if (type === 'layout') {
-        block.layoutType = 'grid';
+      switch(type) {
+        case 'container': block.content = 'محدوده جدید'; break;
+        case 'layout': block.layoutType = 'grid'; block.content = 'چیدمان'; break;
+        case 'visual': block.content = 'متن اینجا'; block.style = { fontSize: '16px', textAlign: 'right' }; break;
+        case 'script': block.scriptType = 'heading'; block.animation = ''; block.content = 'اسکریپت'; break;
+        case 'resource': block.resourceColor = '#6366f1'; block.icon = ''; block.image = ''; block.sound = ''; block.content = 'منابع'; break;
       }
-      if (type === 'script') {
-        block.scriptType = 'heading';
-        block.animation = '';
-      }
-      if (type === 'resource') {
-        block.color = '#6366f1';
-        block.icon = '';
-        block.image = '';
-        block.sound = '';
-      }
+      return block;
+    }
 
-      if (type === 'container') {
-        treeData.blocks.push(block);
-      } else {
-        const lastContainer = findLastContainer();
-        if (lastContainer) {
-          lastContainer.children.push(block);
-        } else {
-          treeData.blocks.push(block);
-        }
-      }
-
+    function deleteBlock(blockId) {
+      if (!confirm('این بلوک حذف شود؟')) return;
+      removeBlockById(treeData.blocks, blockId);
       renderTree();
     }
 
-    function findLastContainer() {
-      if (treeData.blocks.length === 0) return null;
-      const last = treeData.blocks[treeData.blocks.length - 1];
-      if (last.type === 'container') return last;
+    function removeBlockById(blocks, id) {
+      for (let i = blocks.length - 1; i >= 0; i--) {
+        if (blocks[i].id === id) {
+          blocks.splice(i, 1);
+          return true;
+        }
+        if (blocks[i].children && removeBlockById(blocks[i].children, id)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function editBlock(blockId) {
+      editingBlock = findBlockById(treeData.blocks, blockId);
+      if (!editingBlock) return;
+      
+      const modal = document.getElementById('editModal');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      
+      title.textContent = 'ویرایش ' + getBlockLabel(editingBlock);
+      
+      let html = '';
+      
+      switch(editingBlock.type) {
+        case 'visual':
+          html = `
+            <div class="form-group"><label>متن</label><textarea id="editContent" rows="3">${editingBlock.content || ''}</textarea></div>
+            <div class="form-group"><label>سایز فونت</label><input type="text" id="editFontSize" value="${editingBlock.style?.fontSize || '16px'}"></div>
+            <div class="form-group"><label>چینش</label><select id="editTextAlign">
+              <option value="right" ${editingBlock.style?.textAlign === 'right' ? 'selected' : ''}>راست‌چین</option>
+              <option value="center" ${editingBlock.style?.textAlign === 'center' ? 'selected' : ''}>وسط‌چین</option>
+              <option value="left" ${editingBlock.style?.textAlign === 'left' ? 'selected' : ''}>چپ‌چین</option>
+            </select></div>`;
+          break;
+        case 'container':
+          html = `<div class="form-group"><label>نام محدوده</label><input type="text" id="editContent" value="${editingBlock.content || ''}"></div>`;
+          break;
+        case 'layout':
+          html = `<div class="form-group"><label>نوع چیدمان</label><select id="editLayoutType">
+            <option value="grid" ${editingBlock.layoutType === 'grid' ? 'selected' : ''}>جدولی</option>
+            <option value="list" ${editingBlock.layoutType === 'list' ? 'selected' : ''}>لیستی</option>
+            <option value="custom" ${editingBlock.layoutType === 'custom' ? 'selected' : ''}>مختصاتی</option>
+          </select></div>`;
+          break;
+        case 'script':
+          html = `<div class="form-group"><label>نوع المان</label><select id="editScriptType">
+            <option value="heading" ${editingBlock.scriptType === 'heading' ? 'selected' : ''}>عنوان</option>
+            <option value="button" ${editingBlock.scriptType === 'button' ? 'selected' : ''}>دکمه</option>
+            <option value="card" ${editingBlock.scriptType === 'card' ? 'selected' : ''}>کارت</option>
+            <option value="text" ${editingBlock.scriptType === 'text' ? 'selected' : ''}>متن ساده</option>
+          </select></div>
+          <div class="form-group"><label>انیمیشن</label><select id="editAnimation">
+            <option value="" ${!editingBlock.animation ? 'selected' : ''}>بدون انیمیشن</option>
+            <option value="fade" ${editingBlock.animation === 'fade' ? 'selected' : ''}>محو شدن</option>
+            <option value="slide" ${editingBlock.animation === 'slide' ? 'selected' : ''}>اسلاید</option>
+          </select></div>`;
+          break;
+        case 'resource':
+          html = `<div class="form-group"><label>رنگ</label><input type="color" id="editColor" value="${editingBlock.resourceColor || '#6366f1'}"></div>
+            <div class="form-group"><label>آیکون</label><input type="text" id="editIcon" value="${editingBlock.icon || ''}" placeholder="fa-star"></div>
+            <div class="form-group"><label>لینک تصویر</label><input type="text" id="editImage" value="${editingBlock.image || ''}" placeholder="https://..."></div>
+            <div class="form-group"><label>لینک صوت</label><input type="text" id="editSound" value="${editingBlock.sound || ''}" placeholder="https://..."></div>`;
+          break;
+      }
+      
+      html += '<button class="btn-apply" onclick="applyEdit()">اعمال تغییرات</button>';
+      body.innerHTML = html;
+      modal.classList.add('active');
+    }
+
+    function applyEdit() {
+      if (!editingBlock) return;
+      
+      switch(editingBlock.type) {
+        case 'visual':
+          editingBlock.content = document.getElementById('editContent')?.value || '';
+          editingBlock.style = {
+            fontSize: document.getElementById('editFontSize')?.value || '16px',
+            textAlign: document.getElementById('editTextAlign')?.value || 'right'
+          };
+          break;
+        case 'container':
+          editingBlock.content = document.getElementById('editContent')?.value || '';
+          break;
+        case 'layout':
+          editingBlock.layoutType = document.getElementById('editLayoutType')?.value || 'grid';
+          break;
+        case 'script':
+          editingBlock.scriptType = document.getElementById('editScriptType')?.value || 'heading';
+          editingBlock.animation = document.getElementById('editAnimation')?.value || '';
+          break;
+        case 'resource':
+          editingBlock.resourceColor = document.getElementById('editColor')?.value || '#6366f1';
+          editingBlock.icon = document.getElementById('editIcon')?.value || '';
+          editingBlock.image = document.getElementById('editImage')?.value || '';
+          editingBlock.sound = document.getElementById('editSound')?.value || '';
+          break;
+      }
+      
+      closeModal();
+      renderTree();
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('active');
+      editingBlock = null;
+    }
+
+    function findBlockById(blocks, id) {
+      for (let block of blocks) {
+        if (block.id === id) return block;
+        if (block.children) {
+          const found = findBlockById(block.children, id);
+          if (found) return found;
+        }
+      }
       return null;
     }
 
     function renderTree() {
       const container = document.getElementById('treeContainer');
-      container.innerHTML = treeData.blocks.map(block => renderBlock(block)).join('');
+      container.innerHTML = treeData.blocks.map(block => renderBlock(block, 0)).join('');
       
       if (treeData.blocks.length > 0) {
         document.getElementById('emptyState').style.display = 'none';
         document.getElementById('dropZone').classList.add('has-blocks');
+      } else {
+        document.getElementById('emptyState').style.display = '';
+        document.getElementById('dropZone').classList.remove('has-blocks');
       }
     }
 
-    function renderBlock(block) {
+    function renderBlock(block, level) {
       const colors = {
-        container: 'node-green',
-        layout: 'node-red',
-        visual: 'node-yellow',
-        script: 'node-blue',
-        resource: 'node-violet'
+        container: 'node-green', layout: 'node-red',
+        visual: 'node-yellow', script: 'node-blue', resource: 'node-violet'
       };
-
       const icons = {
-        container: 'fa-square',
-        layout: 'fa-table-cells',
-        visual: 'fa-palette',
-        script: 'fa-code',
-        resource: 'fa-icons'
+        container: 'fa-square', layout: 'fa-table-cells',
+        visual: 'fa-palette', script: 'fa-code', resource: 'fa-icons'
       };
 
-      let html = `
-        <div class="tree-block">
-          <div class="node-card ${colors[block.type] || 'node-blue'}">
+      let html = `<div class="tree-block" style="margin-right:${level * 16}px">
+        <div class="tree-node">
+          <div class="node-card ${colors[block.type] || 'node-blue'}" 
+               onclick="editBlock('${block.id}')"
+               draggable="true"
+               ondragstart="event.stopPropagation(); dragStartBlock('${block.id}')">
+            <button class="node-delete" onclick="event.stopPropagation(); deleteBlock('${block.id}')">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
             <i class="fa-solid ${icons[block.type] || 'fa-cube'}"></i>
             ${getBlockLabel(block)}
-          </div>
-      `;
+          </div>`;
 
       if (block.children && block.children.length > 0) {
         html += '<div class="connector-line"></div>';
         html += '<div class="tree-children">';
-        html += block.children.map(child => renderBlock(child)).join('');
+        html += block.children.map(child => renderBlock(child, level + 1)).join('');
         html += '</div>';
       }
 
-      html += '</div>';
+      html += '</div></div>';
       return html;
+    }
+
+    function dragStartBlock(blockId) {
+      draggedType = 'MOVE_' + blockId;
+      event.dataTransfer.setData('text/plain', 'MOVE');
+      event.dataTransfer.effectAllowed = 'move';
     }
 
     function getBlockLabel(block) {
       switch (block.type) {
-        case 'container': return 'محدوده';
+        case 'container': return block.content || 'محدوده';
         case 'layout': return block.layoutType === 'grid' ? 'جدولی' : block.layoutType === 'list' ? 'لیستی' : 'مختصاتی';
-        case 'visual': return 'ظاهری';
-        case 'script': return block.scriptType || 'اسکریپت';
-        case 'resource': return 'منابع';
+        case 'visual': return block.content?.substring(0, 20) || 'ظاهری';
+        case 'script': return (block.scriptType || 'اسکریپت');
+        case 'resource': return block.icon ? block.icon : 'منابع';
         default: return 'بلوک';
-      }
-    }
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
-
-      if (tab === 'code') {
-        generateCode();
-      }
-      if (tab === 'preview') {
-        updatePreview();
       }
     }
 
@@ -408,21 +542,69 @@
       let html = '<!DOCTYPE html>\n<html lang="fa" dir="rtl">\n<head>\n';
       html += '<meta charset="UTF-8">\n';
       html += '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
-      html += '<title>سایت ساخته شده با BlockWeb</title>\n';
+      html += '<title>BlockWeb</title>\n';
       html += '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">\n';
-      html += '<style>\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n';
-      html += '  body { font-family: sans-serif; }\n';
+      html += '<style>\n  *{margin:0;padding:0;box-sizing:border-box}\n  body{font-family:sans-serif}\n';
       html += '</style>\n</head>\n<body>\n';
-      html += '  <!-- ساخته شده با BlockWeb -->\n';
-      html += '</body>\n</html>';
 
+      treeData.blocks.forEach(block => {
+        html += generateBlockHTML(block);
+      });
+
+      html += '\n</body>\n</html>';
       document.getElementById('codeOutput').textContent = html;
     }
 
+    function generateBlockHTML(block) {
+      let html = '';
+      
+      switch(block.type) {
+        case 'container':
+          html += '<div style="padding:16px;margin:8px 0">\n';
+          if (block.children) {
+            block.children.forEach(child => { html += generateBlockHTML(child); });
+          }
+          html += '</div>\n';
+          break;
+        case 'layout':
+          html += '<div style="display:flex;gap:10px;flex-wrap:wrap">\n';
+          if (block.children) {
+            block.children.forEach(child => { html += generateBlockHTML(child); });
+          }
+          html += '</div>\n';
+          break;
+        case 'visual':
+          const style = block.style || {};
+          html += `<p style="font-size:${style.fontSize || '16px'};text-align:${style.textAlign || 'right'}">${block.content || ''}</p>\n`;
+          break;
+        case 'script':
+          if (block.scriptType === 'heading') html += `<h2>${block.content || ''}</h2>\n`;
+          else if (block.scriptType === 'button') html += `<button>${block.content || 'کلیک'}</button>\n`;
+          else if (block.scriptType === 'card') html += `<div style="padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">${block.content || ''}</div>\n`;
+          else html += `<p>${block.content || ''}</p>\n`;
+          break;
+        case 'resource':
+          if (block.icon) html += `<i class="fa-solid ${block.icon}" style="color:${block.resourceColor}"></i>\n`;
+          if (block.image) html += `<img src="${block.image}" style="max-width:100%">\n`;
+          break;
+      }
+      
+      return html;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+
+      if (tab === 'code') generateCode();
+      if (tab === 'preview') updatePreview();
+    }
+
     function updatePreview() {
-      const html = document.getElementById('codeOutput')?.textContent || '';
+      generateCode();
+      const code = document.getElementById('codeOutput')?.textContent || '';
       const frame = document.getElementById('previewFrame');
-      frame.srcdoc = html;
+      frame.srcdoc = code;
     }
 
     async function saveBlocks() {
@@ -437,11 +619,15 @@
             blocks: JSON.stringify(treeData)
           })
         });
-        alert('بلوک‌ها ذخیره شدند.');
+        alert('ذخیره شد.');
       } catch (e) {
         alert('خطا در ذخیره‌سازی.');
       }
     }
+
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
 
     (async function init() {
       new BlockWebApp();
