@@ -3,18 +3,845 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BlockWeb | تست</title>
+  <title>BlockWeb | بلوک‌ها</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f8fafc; --bg2: #f1f5f9; --bg3: #e2e8f0;
+      --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8;
+      --dark: #0f172a; --text: #334155; --text-light: #94a3b8;
+      --white: #ffffff; --red: #f43f5e; --green: #10b981;
+      --orange: #f59e0b; --purple: #a855f7;
+      --yellow: #eab308; --blue: #3b82f6; --violet: #8b5cf6; --amber: #f97316;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    .header {
+      background: var(--white); box-shadow: 0 1px 8px rgba(0,0,0,0.03);
+      padding: 10px 16px; border-bottom: 1px solid var(--bg3);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; gap: 8px;
+    }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .header-logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .header-logo i { font-size: 16px; color: #fff; }
+    .header-title { font-size: 16px; font-weight: 700; color: var(--dark); }
+    .header-btns { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .btn-h {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 600; text-decoration: none;
+      padding: 6px 10px; border-radius: 6px;
+      transition: all 0.2s ease; white-space: nowrap;
+      font-family: inherit; cursor: pointer; border: none;
+    }
+    .btn-save { background: var(--green); color: #fff; }
+    .btn-download { background: var(--amber); color: #fff; }
+    .btn-exit { background: none; color: var(--text); border: 1.5px solid var(--bg3); }
+    .btn-exit:hover { background: var(--bg2); }
+
+    .tab-buttons {
+      display: flex; justify-content: center; padding: 6px 0;
+      background: var(--white); border-bottom: 1px solid var(--bg3);
+    }
+    .tab-btn {
+      padding: 8px 14px; font-size: 11px; font-weight: 600;
+      background: none; border: none; color: var(--text-light);
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--primary); color: #fff; border-radius: 8px; }
+    .tab-btn:hover:not(.active):not(.locked) { color: var(--primary-dark); }
+    .tab-btn.locked { opacity: 0.5; cursor: not-allowed; }
+
+    .main-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .tab-content { display: none; flex: 1; overflow: hidden; }
+    .tab-content.active { display: flex; }
+
+    .builder-layout { flex: 1; display: flex; overflow: hidden; }
+
+    .pages-panel {
+      width: 180px; background: var(--white); border-left: 1px solid var(--bg3);
+      overflow-y: auto; padding: 10px; flex-shrink: 0; display: flex; flex-direction: column;
+    }
+    .pages-panel h4 { font-size: 10px; color: var(--text-light); margin-bottom: 6px; }
+    .page-tab {
+      padding: 7px 9px; border-radius: 7px; margin-bottom: 2px;
+      cursor: pointer; font-size: 10px; font-weight: 600;
+      color: var(--text); transition: all 0.2s;
+      display: flex; align-items: center; gap: 5px; border: 1.5px solid transparent;
+    }
+    .page-tab:hover { background: var(--bg2); }
+    .page-tab.active { background: #eef2ff; border-color: var(--primary); color: var(--primary); }
+    .page-tab i { font-size: 10px; }
+    .btn-add-page {
+      width: 100%; padding: 7px; border-radius: 7px; margin-top: 6px;
+      font-size: 10px; font-weight: 600; cursor: pointer;
+      font-family: inherit; background: none; color: var(--primary);
+      border: 1.5px dashed var(--primary-light);
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .btn-add-page:hover { background: #eef2ff; }
+    .btn-add-container {
+      width: 100%; padding: 8px; border-radius: 7px; margin-top: 4px;
+      font-size: 10px; font-weight: 600; cursor: pointer;
+      font-family: inherit; background: var(--green); color: #fff; border: none;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+
+    .canvas-area { flex: 1; overflow-y: auto; padding: 14px; background: var(--bg2); }
+    .canvas-area::-webkit-scrollbar { width: 5px; }
+    .canvas-area::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 8px; }
+
+    .page-settings-bar {
+      background: var(--white); border-radius: 10px; padding: 10px 14px;
+      margin-bottom: 10px; border: 1px solid var(--bg3);
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .page-settings-bar label { font-size: 9px; font-weight: 600; color: var(--text-light); }
+    .page-settings-bar input[type="color"] { width: 28px; height: 24px; border: none; cursor: pointer; border-radius: 5px; }
+    .page-settings-bar select { padding: 4px 6px; border: 1px solid var(--bg3); border-radius: 5px; font-size: 9px; font-family: inherit; }
+    .setting-group { display: flex; align-items: center; gap: 3px; }
+
+    .drop-zone { min-height: 250px; border: 2px dashed var(--bg3); border-radius: 14px; padding: 14px; }
+    .drop-zone.has-blocks { border-style: solid; }
+
+    .empty-state { text-align: center; padding: 30px 16px; color: var(--text-light); }
+    .empty-state i { font-size: 36px; margin-bottom: 8px; display: block; color: var(--bg3); }
+
+    .container-block {
+      background: var(--white); border-radius: 12px; margin-bottom: 10px;
+      border: 1px solid var(--bg3); overflow: hidden;
+    }
+    .container-header {
+      display: flex; align-items: center; gap: 6px; padding: 7px 10px;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    }
+    .block-badge { padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 700; color: #fff; }
+    .badge-green { background: var(--green); }
+    .badge-red { background: var(--red); cursor: pointer; }
+    .badge-amber { background: var(--amber); }
+
+    .btn-add-row {
+      background: none; border: 1px dashed var(--green); color: var(--green);
+      padding: 4px 8px; border-radius: 5px; font-size: 9px; cursor: pointer;
+      font-family: inherit; margin-right: 4px;
+    }
+
+    .tree-row {
+      display: flex; align-items: center; padding: 5px 10px;
+      border-top: 1px solid var(--bg2); gap: 0; min-height: 40px;
+    }
+    .node-badge {
+      padding: 6px 10px; border-radius: 6px; font-size: 9px; font-weight: 600;
+      color: #fff; cursor: pointer; white-space: nowrap;
+      transition: all 0.2s; flex-shrink: 0; position: relative;
+    }
+    .node-badge:hover { filter: brightness(1.1); }
+    .node-badge i { font-size: 9px; }
+    .badge-yellow { background: var(--yellow); color: #0f172a; }
+    .badge-blue { background: var(--blue); }
+    .badge-violet { background: var(--violet); }
+    .badge-orange { background: var(--amber); }
+
+    .node-delete {
+      position: absolute; top: -4px; left: -4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--red); color: #fff; border: none;
+      cursor: pointer; font-size: 7px; display: none;
+      align-items: center; justify-content: center; z-index: 10;
+    }
+    .node-badge:hover .node-delete { display: flex; }
+
+    .connector-h { width: 16px; height: 2px; background: var(--bg3); flex-shrink: 0; }
+    .connector-v { width: 2px; background: var(--bg3); flex-shrink: 0; }
+
+    .code-panels { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; padding: 10px; }
+    .code-panel { background: var(--white); border-radius: 10px; border: 1px solid var(--bg3); overflow: hidden; }
+    .code-panel-header {
+      padding: 8px 12px; background: var(--bg2); font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--bg3);
+    }
+    .code-panel-body {
+      background: #1e293b; color: #e2e8f0; padding: 10px; font-family: 'Courier New', monospace;
+      font-size: 10px; white-space: pre-wrap; max-height: 200px; overflow-y: auto;
+      direction: ltr; text-align: left;
+    }
+    .preview-frame { width: 100%; height: 100%; border: none; border-radius: 12px; background: #fff; }
+    .preview-locked {
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; text-align: center; color: var(--text-light);
+    }
+    .preview-locked i { font-size: 48px; color: var(--bg3); margin-bottom: 10px; display: block; }
+
+    .ad-banner {
+      background: linear-gradient(135deg, #fef2f2, #fff);
+      border: 1px dashed var(--red); border-radius: 8px;
+      padding: 8px 12px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .ad-banner img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; }
+    .ad-banner span { font-size: 10px; font-weight: 600; color: var(--red); }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 200;
+      align-items: center; justify-content: center; padding: 14px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 14px;
+      width: 100%; max-width: 440px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+    .modal-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--bg3);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { font-size: 13px; color: var(--dark); }
+    .modal-close { background: none; border: none; font-size: 14px; color: var(--text-light); cursor: pointer; }
+    .modal-body { padding: 12px 16px; }
+    .form-group { margin-bottom: 8px; }
+    .form-group label { display: block; font-size: 9px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 7px 9px; border: 1.5px solid var(--bg3); border-radius: 6px;
+      font-size: 10px; color: var(--dark); background: var(--bg);
+      outline: none; font-family: inherit;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
+    .btn-apply {
+      width: 100%; padding: 9px; background: var(--primary); color: #fff;
+      border: none; border-radius: 7px; font-size: 11px; font-weight: 600;
+      cursor: pointer; font-family: inherit; margin-top: 4px;
+    }
+    .lock-badge {
+      display: inline-flex; align-items: center; gap: 2px;
+      font-size: 8px; color: #065f46; background: #d1fae5;
+      padding: 2px 6px; border-radius: 5px;
+    }
+    .lock-badge i { font-size: 7px; }
+
+    @media (max-width: 768px) {
+      .header { padding: 8px 10px; }
+      .header-title { font-size: 14px; }
+      .btn-h { font-size: 9px; padding: 5px 8px; }
+      .tab-btn { font-size: 9px; padding: 6px 10px; }
+      .builder-layout { flex-direction: column-reverse; }
+      .pages-panel {
+        width: 100%; border-left: none; border-top: 1px solid var(--bg3);
+        flex-direction: row; overflow-x: auto; gap: 4px; padding: 6px;
+        flex-shrink: 0; max-height: 100px; flex-wrap: nowrap;
+      }
+      .pages-panel h4, .pages-panel .btn-add-page, .pages-panel .btn-add-container { display: none; }
+      .page-tab { flex-shrink: 0; white-space: nowrap; font-size: 9px; padding: 5px 7px; }
+      .canvas-area { padding: 8px; }
+      .page-settings-bar { gap: 4px; }
+      .container-header { flex-wrap: wrap; gap: 4px; }
+      .tree-row { flex-wrap: wrap; gap: 3px; padding: 4px 8px; }
+      .node-badge { font-size: 8px; padding: 5px 8px; }
+      .code-panel-body { font-size: 9px; max-height: 150px; }
+    }
+  </style>
 </head>
 <body>
-  <h1>BlockWeb Builder</h1>
-  <button onclick="test()">کلیک کن</button>
-  <button onclick="alert('دکمه ۲')">دکمه ۲</button>
+
+  <header class="header">
+    <div class="header-right">
+      <div class="header-logo"><i class="fa-solid fa-cubes"></i></div>
+      <span class="header-title">BlockWeb Builder</span>
+    </div>
+    <div class="header-btns">
+      <button class="btn-h btn-save" onclick="saveBlocks()"><i class="fa-solid fa-save"></i> ذخیره</button>
+      <button class="btn-h btn-download" onclick="downloadAll()"><i class="fa-solid fa-download"></i> دانلود</button>
+      <a href="../dashboard.html" class="btn-h btn-exit"><i class="fa-solid fa-arrow-right"></i> خروج</a>
+    </div>
+  </header>
+
+  <div class="tab-buttons">
+    <button class="tab-btn active" onclick="switchTab('blocks')"><i class="fa-solid fa-cubes"></i> بلوک</button>
+    <button class="tab-btn" onclick="switchTab('code')"><i class="fa-solid fa-code"></i> کد</button>
+    <button class="tab-btn locked" onclick="switchTab('preview')"><i class="fa-solid fa-eye"></i> پیش‌نمایش <span class="lock-badge"><i class="fa-solid fa-crown"></i> پرومیوم</span></button>
+  </div>
+
+  <div class="main-container">
+    
+    <div class="tab-content active" id="tab-blocks">
+      <div class="builder-layout">
+
+        <div class="canvas-area">
+          <a href="https://eitaa.com/Amirmahdi_code" target="_blank" class="ad-banner">
+            <img src="https://cdn.imgurl.ir/uploads/m87412_4b5310ee-fa5a-4d2e-a58c-a9337ddb4f92.png" alt="حمایت">
+            <span>حمایت از سازنده BlockWeb</span>
+          </a>
+
+          <div class="page-settings-bar" id="pageSettingsBar">
+            <span style="font-size:9px;font-weight:700;color:var(--dark);"><i class="fa-solid fa-gear"></i> تنظیمات:</span>
+            <div class="setting-group"><label>هدر</label><input type="color" id="psHeaderColor" value="#6366f1" onchange="updatePageSetting('headerColor', this.value)"></div>
+            <div class="setting-group"><label>بادی</label><input type="color" id="psBodyColor" value="#f8fafc" onchange="updatePageSetting('bodyColor', this.value)"></div>
+            <div class="setting-group"><label>فوتر</label><input type="color" id="psFooterColor" value="#1e293b" onchange="updatePageSetting('footerColor', this.value)"></div>
+            <div class="setting-group"><label>انیمیشن</label><select id="psAnimation" onchange="updatePageSetting('animation', this.value)">
+              <option value="">بدون</option><option value="fade">محو</option><option value="slide">اسلاید</option>
+            </select></div>
+          </div>
+
+          <div class="drop-zone" id="dropZone">
+            <div class="empty-state" id="emptyState">
+              <i class="fa-solid fa-cubes"></i>
+              <p>از پنل سمت راست یک محدوده اضافه کنید</p>
+            </div>
+            <div id="treeContainer"></div>
+          </div>
+        </div>
+
+        <div class="pages-panel" id="pagesPanel">
+          <h4><i class="fa-solid fa-files"></i> صفحات</h4>
+          <div id="pageTabs" style="flex:1;overflow-y:auto;"></div>
+          <button class="btn-add-page" onclick="addPage()"><i class="fa-solid fa-plus"></i> صفحه جدید</button>
+          <button class="btn-add-container" onclick="addContainer()"><i class="fa-solid fa-square-plus"></i> محدوده جدید</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-code">
+      <div class="code-panels" id="codePanels"></div>
+    </div>
+
+    <div class="tab-content" id="tab-preview">
+      <div class="preview-locked" id="previewLocked">
+        <i class="fa-solid fa-crown"></i>
+        <p>پیش‌نمایش مخصوص کاربران پرومیوم است</p>
+      </div>
+      <iframe class="preview-frame" id="previewFrame" style="display:none;"></iframe>
+    </div>
+
+  </div>
+
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">ویرایش بلوک</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
 
   <script>
-    function test() {
-      alert('کار می‌کنه!');
+    const API = 'https://script.google.com/macros/s/AKfycbxNtG79HTd2nfld3Hd1wdUyumvGqsQgE7nrog6F6xpdB7RkYx8Zl_tGlxvMMozaoQT3/exec';
+    const SESSION_DURATION = 3 * 60 * 60 * 1000;
+
+    let projectId = null;
+    let domainName = null;
+    let currentUser = null;
+    let wizardSettings = null;
+    let isPremiumUser = false;
+    let treeData = { pages: [{ id: 'pg_1', name: 'صفحه اصلی', containers: [], pageSettings: { headerColor: '#6366f1', bodyColor: '#f8fafc', footerColor: '#1e293b', animation: '' } }] };
+    let activePageIdx = 0;
+    let editingBlock = null;
+
+    class BlockWebApp {
+      constructor() {
+        this.webApp = window.Eitaa && window.Eitaa.WebApp ? window.Eitaa.WebApp : null;
+        if (this.webApp) { this.webApp.ready(); this.webApp.expand(); }
+      }
     }
+
+    function checkSession() {
+      const sessionData = localStorage.getItem('blockweb_session');
+      if (!sessionData) return null;
+      try {
+        const session = JSON.parse(sessionData);
+        if (Date.now() - session.timestamp > SESSION_DURATION) {
+          localStorage.removeItem('blockweb_session');
+          return null;
+        }
+        return session.user;
+      } catch (e) { localStorage.removeItem('blockweb_session'); return null; }
+    }
+
+    function getActivePage() { return treeData.pages[activePageIdx]; }
+    function getActiveContainers() { return getActivePage().containers; }
+
+    function addPage() {
+      const name = prompt('نام صفحه جدید:');
+      if (!name) return;
+      treeData.pages.push({ id: 'pg_' + Date.now(), name: name, containers: [], pageSettings: { headerColor: '#6366f1', bodyColor: '#f8fafc', footerColor: '#1e293b', animation: '' } });
+      activePageIdx = treeData.pages.length - 1;
+      renderAll();
+    }
+
+    function switchPage(idx) { activePageIdx = idx; renderAll(); }
+
+    function deletePage(idx) {
+      if (treeData.pages.length <= 1) { alert('حداقل یک صفحه باید وجود داشته باشد.'); return; }
+      if (!confirm('این صفحه و همه محتوایش حذف شود؟')) return;
+      treeData.pages.splice(idx, 1);
+      if (activePageIdx >= treeData.pages.length) activePageIdx = treeData.pages.length - 1;
+      renderAll();
+    }
+
+    function addContainer() {
+      getActiveContainers().push({ id: 'c_' + Date.now(), layout: 'grid', rows: [] });
+      renderAll();
+    }
+
+    function addRowToContainer(containerIdx) {
+      const cont = getActiveContainers()[containerIdx];
+      if (!cont) return;
+      cont.rows.push({
+        id: 'r_' + Date.now(),
+        visual: { content: 'متن اینجا', style: { fontSize: '16px', textAlign: 'right' } },
+        script: { type: 'heading', animation: '', link: '' },
+        resource: { color: '#6366f1', icon: '', image: '', sound: '' }
+      });
+      renderAll();
+    }
+
+    function addStorageBlock(containerIdx) {
+      const cont = getActiveContainers()[containerIdx];
+      if (!cont) return;
+      cont.rows.push({
+        id: 'r_' + Date.now(),
+        visual: { content: 'فرم ذخیره‌سازی', style: { fontSize: '16px', textAlign: 'right' } },
+        script: { type: 'button', animation: '', link: '' },
+        resource: { color: '#f97316', icon: 'fa-database', image: '', sound: '' },
+        storage: { apiUrl: '', sheetName: 'Sheet1', columns: 'name,email,message' }
+      });
+      renderAll();
+    }
+
+    function deleteContainer(containerIdx) {
+      if (!confirm('این محدوده حذف شود؟')) return;
+      getActiveContainers().splice(containerIdx, 1);
+      renderAll();
+    }
+
+    function deleteRow(containerIdx, rowIdx) {
+      if (!confirm('این ردیف حذف شود؟')) return;
+      getActiveContainers()[containerIdx].rows.splice(rowIdx, 1);
+      renderAll();
+    }
+
+    function changeLayout(containerIdx) {
+      const cont = getActiveContainers()[containerIdx];
+      const options = ['grid', 'list', 'custom'];
+      const current = options.indexOf(cont.layout);
+      cont.layout = options[(current + 1) % options.length];
+      renderAll();
+    }
+
+    function updatePageSetting(key, value) {
+      getActivePage().pageSettings[key] = value;
+    }
+
+    function openEditModal(containerIdx, rowIdx, part) {
+      const row = getActiveContainers()[containerIdx].rows[rowIdx];
+      editingBlock = { containerIdx, rowIdx, part };
+      const modal = document.getElementById('editModal');
+      let title = '', body = '';
+
+      if (part === 'visual') {
+        title = 'بلوک زرد (ظاهری)';
+        body = `
+          <div class="form-group"><label>متن</label><textarea id="editContent" rows="3">${row.visual.content || ''}</textarea></div>
+          <div class="form-group"><label>سایز فونت</label><input type="text" id="editFontSize" value="${row.visual.style?.fontSize || '16px'}"></div>
+          <div class="form-group"><label>چینش</label><select id="editTextAlign">
+            <option value="right" ${row.visual.style?.textAlign === 'right' ? 'selected' : ''}>راست‌چین</option>
+            <option value="center" ${row.visual.style?.textAlign === 'center' ? 'selected' : ''}>وسط‌چین</option>
+            <option value="left" ${row.visual.style?.textAlign === 'left' ? 'selected' : ''}>چپ‌چین</option>
+          </select></div>`;
+      } else if (part === 'script') {
+        title = 'بلوک آبی (اسکریپت)';
+        body = `
+          <div class="form-group"><label>نوع المان</label><select id="editScriptType">
+            <option value="heading" ${row.script.type === 'heading' ? 'selected' : ''}>عنوان</option>
+            <option value="button" ${row.script.type === 'button' ? 'selected' : ''}>دکمه</option>
+            <option value="card" ${row.script.type === 'card' ? 'selected' : ''}>کارت</option>
+            <option value="text" ${row.script.type === 'text' ? 'selected' : ''}>متن ساده</option>
+          </select></div>
+          <div class="form-group"><label>لینک مقصد</label><input type="text" id="editLink" value="${row.script.link || ''}" placeholder="https://... یا #section"></div>
+          <div class="form-group"><label>انیمیشن</label><select id="editAnimation">
+            <option value="" ${!row.script.animation ? 'selected' : ''}>بدون</option>
+            <option value="fade" ${row.script.animation === 'fade' ? 'selected' : ''}>محو</option>
+            <option value="slide" ${row.script.animation === 'slide' ? 'selected' : ''}>اسلاید</option>
+          </select></div>`;
+      } else if (part === 'resource') {
+        title = 'بلوک بنفش (منابع)';
+        body = `
+          <div class="form-group"><label>رنگ</label><input type="color" id="editColor" value="${row.resource.color || '#6366f1'}"></div>
+          <div class="form-group"><label>آیکون</label><input type="text" id="editIcon" value="${row.resource.icon || ''}" placeholder="fa-star"></div>
+          <div class="form-group"><label>لینک تصویر</label><input type="text" id="editImage" value="${row.resource.image || ''}"></div>
+          <div class="form-group"><label>لینک صوت</label><input type="text" id="editSound" value="${row.resource.sound || ''}"></div>`;
+      } else if (part === 'storage') {
+        title = 'بلوک نارنجی (ذخیره‌سازی)';
+        const st = row.storage || { apiUrl: '', sheetName: 'Sheet1', columns: 'name,email,message' };
+        body = `
+          <div class="form-group"><label>لینک Apps Script</label><input type="text" id="editApiUrl" value="${st.apiUrl || ''}" placeholder="https://script.google.com/..."></div>
+          <div class="form-group"><label>نام شیت</label><input type="text" id="editSheetName" value="${st.sheetName || 'Sheet1'}"></div>
+          <div class="form-group"><label>ستون‌ها</label><input type="text" id="editColumns" value="${st.columns || 'name,email,message'}"></div>
+          <div style="font-size:9px;color:var(--text-light);margin-top:4px;background:#fef3c7;padding:8px;border-radius:6px;">
+            <strong>راهنما:</strong> به script.google.com بروید، کد Apps Script را deploy کنید و لینک Web App را اینجا وارد کنید.
+          </div>`;
+      }
+
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = body + '<button class="btn-apply" onclick="applyEdit()">اعمال تغییرات</button>';
+      modal.classList.add('active');
+    }
+
+    function applyEdit() {
+      if (!editingBlock) return;
+      const { containerIdx, rowIdx, part } = editingBlock;
+      const row = getActiveContainers()[containerIdx].rows[rowIdx];
+
+      if (part === 'visual') {
+        row.visual.content = document.getElementById('editContent')?.value || '';
+        row.visual.style = {
+          fontSize: document.getElementById('editFontSize')?.value || '16px',
+          textAlign: document.getElementById('editTextAlign')?.value || 'right'
+        };
+      } else if (part === 'script') {
+        row.script.type = document.getElementById('editScriptType')?.value || 'heading';
+        row.script.animation = document.getElementById('editAnimation')?.value || '';
+        row.script.link = document.getElementById('editLink')?.value || '';
+      } else if (part === 'resource') {
+        row.resource.color = document.getElementById('editColor')?.value || '#6366f1';
+        row.resource.icon = document.getElementById('editIcon')?.value || '';
+        row.resource.image = document.getElementById('editImage')?.value || '';
+        row.resource.sound = document.getElementById('editSound')?.value || '';
+      } else if (part === 'storage') {
+        if (!row.storage) row.storage = {};
+        row.storage.apiUrl = document.getElementById('editApiUrl')?.value || '';
+        row.storage.sheetName = document.getElementById('editSheetName')?.value || 'Sheet1';
+        row.storage.columns = document.getElementById('editColumns')?.value || 'name,email,message';
+      }
+      
+      closeModal();
+      renderAll();
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('active');
+      editingBlock = null;
+    }
+
+    function renderAll() {
+      renderPageTabs();
+      renderTree();
+      loadPageSettings();
+    }
+
+    function renderPageTabs() {
+      const container = document.getElementById('pageTabs');
+      container.innerHTML = treeData.pages.map((page, idx) => `
+        <div class="page-tab ${idx === activePageIdx ? 'active' : ''}" onclick="switchPage(${idx})">
+          <i class="fa-solid fa-file"></i> ${page.name}
+          ${treeData.pages.length > 1 ? `<i class="fa-solid fa-xmark" style="margin-right:auto;font-size:9px;opacity:0.5;" onclick="event.stopPropagation();deletePage(${idx})"></i>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function loadPageSettings() {
+      const ps = getActivePage().pageSettings || {};
+      document.getElementById('psHeaderColor').value = ps.headerColor || '#6366f1';
+      document.getElementById('psBodyColor').value = ps.bodyColor || '#f8fafc';
+      document.getElementById('psFooterColor').value = ps.footerColor || '#1e293b';
+      document.getElementById('psAnimation').value = ps.animation || '';
+    }
+
+    function renderTree() {
+      const container = document.getElementById('treeContainer');
+      const containers = getActiveContainers();
+
+      if (containers.length === 0) {
+        container.innerHTML = '';
+        document.getElementById('emptyState').style.display = '';
+        document.getElementById('dropZone').classList.remove('has-blocks');
+        return;
+      }
+
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('dropZone').classList.add('has-blocks');
+
+      container.innerHTML = containers.map((cont, ci) => `
+        <div class="container-block">
+          <div class="container-header">
+            <span class="block-badge badge-green">محدوده ${ci + 1}</span>
+            <span class="block-badge badge-red" onclick="changeLayout(${ci})">${cont.layout === 'grid' ? 'جدولی' : cont.layout === 'list' ? 'لیستی' : 'مختصاتی'}</span>
+            <button class="btn-add-row" onclick="addRowToContainer(${ci})"><i class="fa-solid fa-plus"></i> ردیف</button>
+            <button class="btn-add-row" style="border-color:var(--amber);color:var(--amber);" onclick="addStorageBlock(${ci})"><i class="fa-solid fa-database"></i> ذخیره</button>
+            <button style="background:none;border:none;cursor:pointer;color:var(--red);margin-right:auto;" onclick="deleteContainer(${ci})"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+          ${cont.rows.map((row, ri) => `
+            <div class="tree-row">
+              <div class="connector-v" style="align-self:stretch;"></div>
+              <div class="node-badge ${row.storage ? 'badge-orange' : 'badge-blue'}" onclick="openEditModal(${ci},${ri},'${row.storage ? 'storage' : 'script'}')">
+                <button class="node-delete" onclick="event.stopPropagation();deleteRow(${ci},${ri})"><i class="fa-solid fa-xmark"></i></button>
+                <i class="fa-solid ${row.storage ? 'fa-database' : 'fa-code'}"></i> ${row.storage ? 'ذخیره' : row.script.type || 'اسکریپت'}
+              </div>
+              <div class="connector-h"></div>
+              <div class="node-badge badge-violet" onclick="openEditModal(${ci},${ri},'resource')">
+                <i class="fa-solid fa-icons"></i> منابع
+              </div>
+              <div class="connector-h"></div>
+              <div class="node-badge badge-yellow" onclick="openEditModal(${ci},${ri},'visual')">
+                <i class="fa-solid fa-palette"></i> ${row.visual.content?.substring(0, 15) || 'ظاهری'}
+              </div>
+              <div class="connector-v" style="align-self:stretch;"></div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+      
+      if (tab === 'preview' && !isPremiumUser) return;
+      
+      document.getElementById('tab-' + tab).classList.add('active');
+      event.currentTarget.classList.add('active');
+      
+      if (tab === 'code') generateCodePanels();
+      if (tab === 'preview') updatePreview();
+    }
+
+    function generateCodePanels() {
+      const container = document.getElementById('codePanels');
+      let html = '';
+      
+      treeData.pages.forEach((page) => {
+        const code = generatePageCode(page);
+        html += `
+          <div class="code-panel">
+            <div class="code-panel-header"><i class="fa-solid fa-file-code"></i> ${page.name} — HTML</div>
+            <div class="code-panel-body">${escapeHtml(code.html)}</div>
+          </div>
+          <div class="code-panel">
+            <div class="code-panel-header"><i class="fa-solid fa-paintbrush"></i> ${page.name} — CSS</div>
+            <div class="code-panel-body">${escapeHtml(code.css)}</div>
+          </div>
+          <div class="code-panel">
+            <div class="code-panel-header"><i class="fa-solid fa-gear"></i> ${page.name} — JavaScript</div>
+            <div class="code-panel-body">${escapeHtml(code.js)}</div>
+          </div>`;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    function generatePageCode(page) {
+      const ps = page.pageSettings || {};
+      
+      let css = '*{margin:0;padding:0;box-sizing:border-box}\n';
+      css += 'body{font-family:sans-serif;';
+      css += 'background:' + (ps.bodyColor || '#f8fafc') + ';';
+      css += 'color:#0f172a;';
+      if (ps.animation === 'fade') css += 'animation:fadeIn 1s ease;';
+      if (ps.animation === 'slide') css += 'animation:slideIn 1s ease;';
+      css += '}\n';
+      css += '@keyframes fadeIn{from{opacity:0}to{opacity:1}}\n';
+      css += '@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}\n';
+      
+      let html = '<!DOCTYPE html>\n<html lang="fa" dir="rtl">\n<head>\n';
+      html += '<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+      html += '<title>' + page.name + ' — BlockWeb</title>\n';
+      html += '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">\n';
+      html += '<link rel="stylesheet" href="style.css">\n</head>\n<body>\n';
+      
+      if (wizardSettings && wizardSettings.header === 'yes') {
+        html += '<header style="background:' + (ps.headerColor || '#6366f1') + ';padding:16px;color:#fff">';
+        html += '<div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between">';
+        html += '<h1>' + (wizardSettings.headerText || 'سایت من') + '</h1>';
+        html += '</div></header>\n';
+      }
+
+      html += '<main style="max-width:1100px;margin:0 auto;padding:16px">\n';
+      
+      page.containers.forEach(cont => {
+        html += '<div style="';
+        if (cont.layout === 'grid') html += 'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;';
+        else if (cont.layout === 'list') html += 'display:flex;flex-direction:column;gap:8px;';
+        html += '">\n';
+        
+        cont.rows.forEach(row => {
+          if (row.resource.icon) html += '<i class="fa-solid ' + row.resource.icon + '" style="color:' + row.resource.color + ';font-size:24px;"></i>\n';
+          if (row.resource.image) html += '<img src="' + row.resource.image + '" style="max-width:100%;">\n';
+          
+          const style = row.visual.style || {};
+          const content = row.visual.content || '';
+          
+          if (row.storage) {
+            html += '<form onsubmit="handleSubmit(event)" style="display:flex;flex-direction:column;gap:8px;max-width:400px;">\n';
+            const cols = (row.storage.columns || 'name,email,message').split(',');
+            cols.forEach(col => {
+              html += '<input type="text" name="' + col.trim() + '" placeholder="' + col.trim() + '" style="padding:8px;border:1px solid #ddd;border-radius:6px;">\n';
+            });
+            html += '<button type="submit" style="padding:10px;background:' + row.resource.color + ';color:#fff;border:none;border-radius:6px;cursor:pointer;">ارسال</button>\n';
+            html += '</form>\n';
+          } else if (row.script.type === 'heading') {
+            html += '<h2 style="font-size:' + style.fontSize + ';text-align:' + style.textAlign + '">' + content + '</h2>\n';
+          } else if (row.script.type === 'button') {
+            html += '<a href="' + (row.script.link || '#') + '"><button style="font-size:' + style.fontSize + ';padding:10px 20px;background:' + row.resource.color + ';color:#fff;border:none;border-radius:8px;cursor:pointer;">' + (content || 'کلیک') + '</button></a>\n';
+          } else if (row.script.type === 'card') {
+            html += '<div style="font-size:' + style.fontSize + ';text-align:' + style.textAlign + ';padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">' + content + '</div>\n';
+          } else {
+            html += '<p style="font-size:' + style.fontSize + ';text-align:' + style.textAlign + '">' + content + '</p>\n';
+          }
+        });
+        
+        html += '</div>\n';
+      });
+
+      html += '</main>\n';
+
+      html += '<a href="https://eitaa.com/Amirmahdi_code" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:#fef2f2;border-top:1px dashed #f43f5e;text-decoration:none;color:#f43f5e;font-size:12px;justify-content:center;">';
+      html += '<img src="https://cdn.imgurl.ir/uploads/m87412_4b5310ee-fa5a-4d2e-a58c-a9337ddb4f92.png" style="width:32px;height:32px;border-radius:6px;"> حمایت از سازنده BlockWeb</a>\n';
+
+      if (wizardSettings && wizardSettings.footer !== '1') {
+        html += '<footer style="background:' + (ps.footerColor || '#1e293b') + ';padding:16px;color:#fff;text-align:center;margin-top:20px">\n';
+        html += '<p style="opacity:0.5;font-size:12px;">ساخته شده با BlockWeb</p>\n';
+        html += '</footer>\n';
+      }
+
+      html += '<script src="script.js"><\/script>\n</body>\n</html>';
+
+      let js = '';
+      const storageRows = [];
+      page.containers.forEach(cont => {
+        cont.rows.forEach(row => {
+          if (row.storage) storageRows.push(row);
+        });
+      });
+      
+      if (storageRows.length > 0) {
+        js += 'async function handleSubmit(e) {\n  e.preventDefault();\n';
+        js += '  const form = e.target;\n  const data = {};\n';
+        js += '  form.querySelectorAll("input").forEach(inp => { data[inp.name] = inp.value; });\n';
+        js += '  try {\n';
+        storageRows.forEach((row, i) => {
+          js += '    ' + (i > 0 ? '// یا ' : '') + 'await fetch("' + (row.storage.apiUrl || '') + '", {method:"POST",body:JSON.stringify(data)});\n';
+        });
+        js += '    alert("با موفقیت ثبت شد.");\n  } catch(e) { alert("خطا در ثبت."); }\n}\n';
+      }
+
+      return { html, css, js };
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function updatePreview() {
+      if (!isPremiumUser) return;
+      const page = getActivePage();
+      const code = generatePageCode(page);
+      const full = code.html.replace('<link rel="stylesheet" href="style.css">', '<style>' + code.css + '</style>')
+                           .replace('<script src="script.js"></script>', '<script>' + code.js + '<\/script>');
+      document.getElementById('previewFrame').srcdoc = full;
+    }
+
+    function downloadAll() {
+      treeData.pages.forEach((page, idx) => {
+        const code = generatePageCode(page);
+        const prefix = idx === 0 ? 'index' : page.name.replace(/\s/g, '_');
+        
+        downloadFile(prefix + '.html', code.html);
+        downloadFile(prefix + '.css', code.css);
+        if (code.js.trim()) downloadFile(prefix + '.js', code.js);
+      });
+    }
+
+    function downloadFile(filename, content) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function saveBlocks() {
+      if (!projectId) return;
+      try {
+        await fetch(API, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'saveProjectBlocks', projectId: projectId, blocks: JSON.stringify(treeData) })
+        });
+        alert('ذخیره شد.');
+      } catch (e) { alert('خطا در ذخیره‌سازی.'); }
+    }
+
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    (async function init() {
+      new BlockWebApp();
+      currentUser = checkSession();
+      if (!currentUser) { window.location.href = '../login.html'; return; }
+      
+      isPremiumUser = currentUser.userType === 'owner' || currentUser.userType === 'vip' || 
+                      (currentUser.purchasedPlans && currentUser.purchasedPlans.some(p => p !== 'plan_free'));
+
+      const params = new URLSearchParams(window.location.search);
+      domainName = params.get('domain');
+      if (!domainName) { window.location.href = '../dashboard.html'; return; }
+
+      try {
+        const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getProjectByDomain', domain: domainName }) });
+        const data = await res.json();
+        if (data && data.success) {
+          projectId = data.projectId;
+          if (data.settings && data.settings !== '') {
+            wizardSettings = JSON.parse(data.settings);
+            if (wizardSettings.support === 'yes') {
+              const hasSupport = treeData.pages.some(p => p.name === 'پشتیبانی');
+              if (!hasSupport) {
+                treeData.pages.push({
+                  id: 'pg_support',
+                  name: 'پشتیبانی',
+                  containers: [{
+                    id: 'c_support', layout: 'list',
+                    rows: [{
+                      id: 'r_support',
+                      visual: { content: 'بخش پشتیبانی آنلاین', style: { fontSize: '18px', textAlign: 'center' } },
+                      script: { type: 'heading', animation: 'fade', link: '' },
+                      resource: { color: '#6366f1', icon: 'fa-headset', image: '', sound: '' }
+                    }]
+                  }],
+                  pageSettings: { headerColor: '#6366f1', bodyColor: '#f8fafc', footerColor: '#1e293b', animation: 'fade' }
+                });
+              }
+            }
+          }
+          if (data.blocks && data.blocks !== '') {
+            try {
+              treeData = JSON.parse(data.blocks);
+              if (!treeData.pages) treeData = { pages: [{ id: 'pg_1', name: 'صفحه اصلی', containers: [], pageSettings: { headerColor: '#6366f1', bodyColor: '#f8fafc', footerColor: '#1e293b', animation: '' } }] };
+            } catch (e) {}
+          }
+        }
+      } catch (e) {}
+
+      if (isPremiumUser) {
+        document.getElementById('previewLocked').style.display = 'none';
+        document.getElementById('previewFrame').style.display = '';
+        document.querySelector('.tab-btn.locked')?.classList.remove('locked');
+      }
+      
+      renderAll();
+    })();
   </script>
+
 </body>
 </html>
