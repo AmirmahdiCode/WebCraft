@@ -178,26 +178,12 @@
       font-size: 10px; white-space: pre-wrap; max-height: 200px; overflow-y: auto;
       direction: ltr; text-align: left;
     }
-    .code-editor {
-      width: 100%; min-height: 150px; background: #1e293b; color: #e2e8f0;
-      border: none; padding: 10px; font-family: monospace; font-size: 10px;
-      resize: vertical; outline: none;
-    }
     .preview-frame { width: 100%; height: 100%; border: none; border-radius: 12px; background: #fff; }
     .preview-locked {
       display: flex; align-items: center; justify-content: center;
       flex: 1; text-align: center; color: var(--text-light);
     }
     .preview-locked i { font-size: 48px; color: var(--bg3); margin-bottom: 10px; display: block; }
-
-    .ad-banner {
-      background: linear-gradient(135deg, #fef2f2, #fff);
-      border: 1px dashed var(--red); border-radius: 8px;
-      padding: 8px 12px; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 8px; cursor: pointer;
-    }
-    .ad-banner img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; }
-    .ad-banner span { font-size: 10px; font-weight: 600; color: var(--red); }
 
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -264,7 +250,6 @@
   </style>
 </head>
 <body>
-
   <header class="header">
     <div class="header-right">
       <div class="header-logo"><i class="fa-solid fa-cubes"></i></div>
@@ -272,22 +257,18 @@
     </div>
     <div class="header-btns">
       <button class="btn-h btn-save" onclick="saveBlocks()"><i class="fa-solid fa-save"></i> ذخیره</button>
-      <button class="btn-h btn-download" onclick="downloadAll()"><i class="fa-solid fa-download"></i> دانلود</button>
+      <button class="btn-h btn-download" onclick="dlAll()"><i class="fa-solid fa-download"></i> دانلود</button>
       <a href="../dashboard.html" class="btn-h btn-exit"><i class="fa-solid fa-arrow-right"></i> خروج</a>
     </div>
   </header>
-
   <div class="tab-buttons">
     <button class="tab-btn active" onclick="switchTab('blocks')"><i class="fa-solid fa-cubes"></i> بلوک</button>
     <button class="tab-btn" onclick="switchTab('code')"><i class="fa-solid fa-code"></i> کد</button>
     <button class="tab-btn locked" id="tabPreview" onclick="switchTab('preview')"><i class="fa-solid fa-eye"></i> پیش‌نمایش <span class="lock-badge"><i class="fa-solid fa-crown"></i> پرومیوم</span></button>
   </div>
-
   <div class="main-container">
-    
     <div class="tab-content active" id="tab-blocks">
       <div class="builder-layout">
-
         <div class="canvas-area">
           <div class="page-settings-bar" id="pageSettingsBar">
             <span style="font-size:9px;font-weight:700;color:var(--dark);"><i class="fa-solid fa-gear"></i> تنظیمات:</span>
@@ -298,7 +279,6 @@
               <option value="">بدون</option><option value="fade">محو</option><option value="slide">اسلاید</option>
             </select></div>
           </div>
-
           <div class="drop-zone" id="dropZone">
             <div class="empty-state" id="emptyState">
               <i class="fa-solid fa-cubes"></i>
@@ -307,7 +287,6 @@
             <div id="treeContainer"></div>
           </div>
         </div>
-
         <div class="pages-panel" id="pagesPanel">
           <h4><i class="fa-solid fa-files"></i> صفحات</h4>
           <div id="pageTabs" style="flex:1;overflow-y:auto;"></div>
@@ -319,14 +298,11 @@
             <button class="btn-add-cont locked" id="btnLogicCont" onclick="addContainer('logic')"><i class="fa-solid fa-brain"></i> محدوده منطق‌دار <span class="lock-badge"><i class="fa-solid fa-crown"></i></span></button>
           </div>
         </div>
-
       </div>
     </div>
-
     <div class="tab-content" id="tab-code">
       <div class="code-panels" id="codePanels"></div>
     </div>
-
     <div class="tab-content" id="tab-preview">
       <div class="preview-locked" id="previewLocked">
         <i class="fa-solid fa-crown"></i>
@@ -334,9 +310,7 @@
       </div>
       <iframe class="preview-frame" id="previewFrame" style="display:none;"></iframe>
     </div>
-
   </div>
-
   <div class="modal-overlay" id="editModal">
     <div class="modal">
       <div class="modal-header">
@@ -356,22 +330,13 @@
     let ap = 0, edit = null;
     let adsList = [];
     if (window.Eitaa?.WebApp) { window.Eitaa.WebApp.ready(); window.Eitaa.WebApp.expand(); }
-    function sess() {
-      try { let s = JSON.parse(localStorage.getItem('blockweb_session')); if (Date.now() - s.timestamp > SESS) { localStorage.removeItem('blockweb_session'); return null; } return s.user; } catch (e) { return null; }
-    }
+    function sess() { try { let s = JSON.parse(localStorage.getItem('blockweb_session')); if (Date.now() - s.timestamp > SESS) { localStorage.removeItem('blockweb_session'); return null; } return s.user; } catch (e) { return null; } }
     function GP() { return data.pages[ap]; }
     function GC() { return GP().conts; }
     function addPage() { let n = prompt('نام صفحه:'); if (!n) return; data.pages.push({ id: 'pg_' + Date.now(), name: n, conts: [], ps: { hc: '#6366f1', bc: '#f8fafc', fc: '#1e293b', an: '' } }); ap = data.pages.length - 1; RA(); }
     function swP(idx) { ap = idx; RA(); }
     function delP(idx) { if (data.pages.length <= 1) return; if (!confirm('حذف؟')) return; data.pages.splice(idx, 1); if (ap >= data.pages.length) ap = data.pages.length - 1; RA(); }
-    function addContainer(type) {
-      if (type === 'logic' && !isPrem) return;
-      let c = { id: 'c_' + Date.now(), contType: type, layout: 'grid', rows: [] };
-      if (type === 'button') c.buttonLink = '#';
-      if (type === 'list') { c.listApi = ''; c.listSheet = 'Sheet1'; c.listCol = ''; }
-      if (type === 'logic') c.logicPrompt = '';
-      GC().push(c); RA();
-    }
+    function addContainer(type) { if (type === 'logic' && !isPrem) return; let c = { id: 'c_' + Date.now(), contType: type, layout: 'grid', rows: [] }; if (type === 'button') c.buttonLink = '#'; if (type === 'list') { c.listApi = ''; c.listSheet = 'Sheet1'; c.listCol = ''; } if (type === 'logic') c.logicPrompt = ''; GC().push(c); RA(); }
     function addR(ci) { let c = GC()[ci]; if (!c) return; c.rows.push({ id: 'r_' + Date.now(), vis: { txt: 'متن', st: { fs: '16px', ta: 'right', w: '', h: '' } }, scr: { tp: 'heading', an: '', lk: '', fl: false, fpos: 'br', fx: '20', fy: '20' }, res: { cl: '#6366f1', ic: '', im: '', sd: '' }, stg: null }); RA(); }
     function addSt(ci) { let c = GC()[ci]; if (!c) return; c.rows.push({ id: 'r_' + Date.now(), vis: { txt: 'فرم ذخیره', st: { fs: '16px', ta: 'right', w: '', h: '' } }, scr: { tp: 'button', an: '', lk: '', fl: false }, res: { cl: '#f97316', ic: 'fa-database', im: '', sd: '' }, stg: { api: '', sh: 'Sheet1', col: 'name,email' } }); RA(); }
     function delC(ci) { if (!confirm('حذف؟')) return; GC().splice(ci, 1); RA(); }
@@ -381,207 +346,37 @@
     function openM(ci, ri, part) {
       let row = GC()[ci].rows[ri]; edit = { ci, ri, part };
       let m = document.getElementById('editModal'), t = '', b = '';
-      if (part === 'vis') {
-        t = 'بلوک زرد (ظاهری)';
-        b = `<div class="form-group"><label>متن</label><textarea id="ef1" rows="3">${row.vis.txt||''}</textarea></div>
-        <div class="form-group"><label>فونت</label><input id="ef2" value="${row.vis.st?.fs||'16px'}"></div>
-        <div class="form-group"><label>چینش</label><select id="ef3"><option value="right" ${row.vis.st?.ta==='right'?'selected':''}>راست</option><option value="center" ${row.vis.st?.ta==='center'?'selected':''}>وسط</option><option value="left" ${row.vis.st?.ta==='left'?'selected':''}>چپ</option></select></div>
-        <div class="form-group"><label>عرض</label><input id="ef4" value="${row.vis.st?.w||''}" placeholder="مثلاً 300px"></div>
-        <div class="form-group"><label>ارتفاع</label><input id="ef5" value="${row.vis.st?.h||''}" placeholder="مثلاً auto"></div>`;
-      } else if (part === 'scr') {
-        t = 'بلوک آبی (اسکریپت)';
-        b = `<div class="form-group"><label>نوع</label><select id="ef1"><option value="heading" ${row.scr.tp==='heading'?'selected':''}>عنوان</option><option value="button" ${row.scr.tp==='button'?'selected':''}>دکمه</option><option value="card" ${row.scr.tp==='card'?'selected':''}>کارت</option><option value="text" ${row.scr.tp==='text'?'selected':''}>متن</option><option value="floating" ${row.scr.tp==='floating'?'selected':''}>شناور</option></select></div>
-        <div class="form-group"><label>لینک</label><input id="ef2" value="${row.scr.lk||''}"></div>
-        <div class="form-group"><label>انیمیشن</label><select id="ef3"><option value="" ${!row.scr.an?'selected':''}>بدون</option><option value="fade" ${row.scr.an==='fade'?'selected':''}>محو</option><option value="slide" ${row.scr.an==='slide'?'selected':''}>اسلاید</option></select></div>
-        <div class="form-group"><label>موقعیت شناور</label><select id="ef4"><option value="br" ${row.scr.fpos==='br'?'selected':''}>پایین راست</option><option value="bl" ${row.scr.fpos==='bl'?'selected':''}>پایین چپ</option><option value="tr" ${row.scr.fpos==='tr'?'selected':''}>بالا راست</option><option value="tl" ${row.scr.fpos==='tl'?'selected':''}>بالا چپ</option></select></div>
-        <div class="form-group"><label>فاصله X</label><input id="ef5" value="${row.scr.fx||'20'}" placeholder="px"></div>
-        <div class="form-group"><label>فاصله Y</label><input id="ef6" value="${row.scr.fy||'20'}" placeholder="px"></div>`;
-      } else if (part === 'res') {
-        t = 'بلوک بنفش (منابع)';
-        b = `<div class="form-group"><label>رنگ</label><input type="color" id="ef1" value="${row.res.cl||'#6366f1'}"> <small>(${isPrem ? 'نامحدود' : 'حداکثر ۳ رنگ'})</small></div>
-        <div class="form-group"><label>آیکون</label><input id="ef2" value="${row.res.ic||''}" placeholder="fa-star"></div>
-        <div class="form-group"><label>تصویر</label><input id="ef3" value="${row.res.im||''}"></div>
-        <div class="form-group"><label>صوت</label><input id="ef4" value="${row.res.sd||''}"> <small>(${isPrem ? 'نامحدود' : 'حداکثر ۳ صوت'})</small></div>`;
-      } else if (part === 'stg') {
-        t = 'بلوک نارنجی (ذخیره)';
-        let st = row.stg || { api: '', sh: 'Sheet1', col: 'name,email' };
-        b = `<div class="form-group"><label>لینک Apps Script</label><input id="ef1" value="${st.api||''}"></div><div class="form-group"><label>شیت</label><input id="ef2" value="${st.sh||'Sheet1'}"></div><div class="form-group"><label>ستون‌ها</label><input id="ef3" value="${st.col||'name,email'}"></div>`;
-      }
+      if (part === 'vis') { t = 'بلوک زرد (ظاهری)'; b = `<div class="form-group"><label>متن</label><textarea id="ef1" rows="3">${row.vis.txt||''}</textarea></div><div class="form-group"><label>فونت</label><input id="ef2" value="${row.vis.st?.fs||'16px'}"></div><div class="form-group"><label>چینش</label><select id="ef3"><option value="right" ${row.vis.st?.ta==='right'?'selected':''}>راست</option><option value="center" ${row.vis.st?.ta==='center'?'selected':''}>وسط</option><option value="left" ${row.vis.st?.ta==='left'?'selected':''}>چپ</option></select></div><div class="form-group"><label>عرض</label><input id="ef4" value="${row.vis.st?.w||''}" placeholder="مثلاً 300px"></div><div class="form-group"><label>ارتفاع</label><input id="ef5" value="${row.vis.st?.h||''}" placeholder="مثلاً auto"></div>`; }
+      else if (part === 'scr') { t = 'بلوک آبی (اسکریپت)'; b = `<div class="form-group"><label>نوع</label><select id="ef1"><option value="heading" ${row.scr.tp==='heading'?'selected':''}>عنوان</option><option value="button" ${row.scr.tp==='button'?'selected':''}>دکمه</option><option value="card" ${row.scr.tp==='card'?'selected':''}>کارت</option><option value="text" ${row.scr.tp==='text'?'selected':''}>متن</option><option value="floating" ${row.scr.tp==='floating'?'selected':''}>شناور</option></select></div><div class="form-group"><label>لینک</label><input id="ef2" value="${row.scr.lk||''}"></div><div class="form-group"><label>انیمیشن</label><select id="ef3"><option value="" ${!row.scr.an?'selected':''}>بدون</option><option value="fade" ${row.scr.an==='fade'?'selected':''}>محو</option><option value="slide" ${row.scr.an==='slide'?'selected':''}>اسلاید</option></select></div><div class="form-group"><label>موقعیت شناور</label><select id="ef4"><option value="br" ${row.scr.fpos==='br'?'selected':''}>پایین راست</option><option value="bl" ${row.scr.fpos==='bl'?'selected':''}>پایین چپ</option><option value="tr" ${row.scr.fpos==='tr'?'selected':''}>بالا راست</option><option value="tl" ${row.scr.fpos==='tl'?'selected':''}>بالا چپ</option></select></div><div class="form-group"><label>فاصله X</label><input id="ef5" value="${row.scr.fx||'20'}" placeholder="px"></div><div class="form-group"><label>فاصله Y</label><input id="ef6" value="${row.scr.fy||'20'}" placeholder="px"></div>`; }
+      else if (part === 'res') { t = 'بلوک بنفش (منابع)'; b = `<div class="form-group"><label>رنگ</label><input type="color" id="ef1" value="${row.res.cl||'#6366f1'}"> <small>(${isPrem ? 'نامحدود' : 'حداکثر ۳ رنگ'})</small></div><div class="form-group"><label>آیکون</label><input id="ef2" value="${row.res.ic||''}" placeholder="fa-star"></div><div class="form-group"><label>تصویر</label><input id="ef3" value="${row.res.im||''}"></div><div class="form-group"><label>صوت</label><input id="ef4" value="${row.res.sd||''}"> <small>(${isPrem ? 'نامحدود' : 'حداکثر ۳ صوت'})</small></div>`; }
+      else if (part === 'stg') { t = 'بلوک نارنجی (ذخیره)'; let st = row.stg || { api: '', sh: 'Sheet1', col: 'name,email' }; b = `<div class="form-group"><label>لینک Apps Script</label><input id="ef1" value="${st.api||''}"></div><div class="form-group"><label>شیت</label><input id="ef2" value="${st.sh||'Sheet1'}"></div><div class="form-group"><label>ستون‌ها</label><input id="ef3" value="${st.col||'name,email'}"></div>`; }
       document.getElementById('modalTitle').textContent = t;
       document.getElementById('modalBody').innerHTML = b + '<button class="btn-apply" onclick="applyM()">اعمال</button>';
       m.classList.add('active');
     }
-    function applyM() {
-      if (!edit) return; let { ci, ri, part } = edit; let row = GC()[ci].rows[ri];
-      if (part === 'vis') { row.vis.txt = document.getElementById('ef1')?.value || ''; row.vis.st = { fs: document.getElementById('ef2')?.value || '16px', ta: document.getElementById('ef3')?.value || 'right', w: document.getElementById('ef4')?.value || '', h: document.getElementById('ef5')?.value || '' }; }
-      else if (part === 'scr') { row.scr.tp = document.getElementById('ef1')?.value || 'heading'; row.scr.an = document.getElementById('ef3')?.value || ''; row.scr.lk = document.getElementById('ef2')?.value || ''; row.scr.fpos = document.getElementById('ef4')?.value || 'br'; row.scr.fx = document.getElementById('ef5')?.value || '20'; row.scr.fy = document.getElementById('ef6')?.value || '20'; }
-      else if (part === 'res') { row.res.cl = document.getElementById('ef1')?.value || '#6366f1'; row.res.ic = document.getElementById('ef2')?.value || ''; row.res.im = document.getElementById('ef3')?.value || ''; row.res.sd = document.getElementById('ef4')?.value || ''; }
-      else if (part === 'stg') { if (!row.stg) row.stg = {}; row.stg.api = document.getElementById('ef1')?.value || ''; row.stg.sh = document.getElementById('ef2')?.value || 'Sheet1'; row.stg.col = document.getElementById('ef3')?.value || 'name,email'; }
-      closeM(); RA();
-    }
+    function applyM() { if (!edit) return; let { ci, ri, part } = edit; let row = GC()[ci].rows[ri]; if (part === 'vis') { row.vis.txt = document.getElementById('ef1')?.value || ''; row.vis.st = { fs: document.getElementById('ef2')?.value || '16px', ta: document.getElementById('ef3')?.value || 'right', w: document.getElementById('ef4')?.value || '', h: document.getElementById('ef5')?.value || '' }; } else if (part === 'scr') { row.scr.tp = document.getElementById('ef1')?.value || 'heading'; row.scr.an = document.getElementById('ef3')?.value || ''; row.scr.lk = document.getElementById('ef2')?.value || ''; row.scr.fpos = document.getElementById('ef4')?.value || 'br'; row.scr.fx = document.getElementById('ef5')?.value || '20'; row.scr.fy = document.getElementById('ef6')?.value || '20'; } else if (part === 'res') { row.res.cl = document.getElementById('ef1')?.value || '#6366f1'; row.res.ic = document.getElementById('ef2')?.value || ''; row.res.im = document.getElementById('ef3')?.value || ''; row.res.sd = document.getElementById('ef4')?.value || ''; } else if (part === 'stg') { if (!row.stg) row.stg = {}; row.stg.api = document.getElementById('ef1')?.value || ''; row.stg.sh = document.getElementById('ef2')?.value || 'Sheet1'; row.stg.col = document.getElementById('ef3')?.value || 'name,email'; } closeM(); RA(); }
     function closeM() { document.getElementById('editModal').classList.remove('active'); edit = null; }
     function RA() { RP(); RT(); LP(); }
     function RP() { document.getElementById('pageTabs').innerHTML = data.pages.map((p, i) => `<div class="page-tab ${i===ap?'active':''}" onclick="swP(${i})"><i class="fa-solid fa-file"></i> ${p.name}${data.pages.length>1?`<i class="fa-solid fa-xmark" style="margin-right:auto;font-size:9px;opacity:0.5;" onclick="event.stopPropagation();delP(${i})"></i>`:''}</div>`).join(''); }
     function LP() { let ps = GP().ps || {}; document.getElementById('psHeaderColor').value = ps.hc || '#6366f1'; document.getElementById('psBodyColor').value = ps.bc || '#f8fafc'; document.getElementById('psFooterColor').value = ps.fc || '#1e293b'; document.getElementById('psAnimation').value = ps.an || ''; }
-    function RT() {
-      let conts = GC(), ctr = document.getElementById('treeContainer');
-      if (conts.length === 0) { ctr.innerHTML = ''; document.getElementById('emptyState').style.display = ''; document.getElementById('dropZone').classList.remove('has-blocks'); return; }
-      document.getElementById('emptyState').style.display = 'none'; document.getElementById('dropZone').classList.add('has-blocks');
-      ctr.innerHTML = conts.map((c, ci) => {
-        let typeLabel = c.contType === 'button' ? 'دکمه‌ای' : c.contType === 'list' ? 'لیستی' : c.contType === 'logic' ? 'منطق‌دار' : 'ساده';
-        return `<div class="container-block"><div class="container-header"><span class="block-badge badge-green">${typeLabel} ${ci+1}</span><span class="block-badge badge-red" onclick="chL(${ci})">${c.layout==='grid'?'جدولی':c.layout==='list'?'لیستی':'مختصاتی'}</span><button class="btn-add-row" onclick="addR(${ci})"><i class="fa-solid fa-plus"></i> ردیف</button><button class="btn-add-row" style="border-color:var(--amber);color:var(--amber);" onclick="addSt(${ci})"><i class="fa-solid fa-database"></i> ذخیره</button><button style="background:none;border:none;cursor:pointer;color:var(--red);margin-right:auto;" onclick="delC(${ci})"><i class="fa-solid fa-trash-can"></i></button></div>${c.rows.map((r, ri) => `<div class="tree-row"><div class="connector-v" style="align-self:stretch;"></div><div class="node-badge ${r.stg?'badge-orange':'badge-blue'}" onclick="openM(${ci},${ri},'${r.stg?'stg':'scr'}')"><button class="node-delete" onclick="event.stopPropagation();delR(${ci},${ri})"><i class="fa-solid fa-xmark"></i></button><i class="fa-solid ${r.stg?'fa-database':'fa-code'}"></i> ${r.stg?'ذخیره':r.scr.tp||'اسکریپت'}</div><div class="connector-h"></div><div class="node-badge badge-violet" onclick="openM(${ci},${ri},'res')"><i class="fa-solid fa-icons"></i> منابع</div><div class="connector-h"></div><div class="node-badge badge-yellow" onclick="openM(${ci},${ri},'vis')"><i class="fa-solid fa-palette"></i> ${r.vis.txt?.substring(0,15)||'ظاهری'}</div><div class="connector-v" style="align-self:stretch;"></div></div>`).join('')}</div>`;
-      }).join('');
-    }
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-      if (tab === 'preview' && !isPrem) return;
-      document.getElementById('tab-' + tab).classList.add('active');
-      event.currentTarget.classList.add('active');
-      if (tab === 'code') genCP();
-      if (tab === 'preview') upPV();
-    }
-    async function loadAds() {
-      try { let r = await fetch(ADS_API); adsList = await r.json(); } catch (e) { adsList = []; }
-    }
-    function genCP() {
-      let ctr = document.getElementById('codePanels'), h = '';
-      data.pages.forEach(p => {
-        let c = genPC(p);
-        h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-file-code"></i> ${p.name} — HTML ${isPrem?`<button class="btn-h btn-save" style="margin-right:auto;font-size:9px;" onclick="editCode('${p.id}','html')">ویرایش</button>`:''}</div><div class="code-panel-body" id="code-html-${p.id}">${esc(c.html)}</div></div>`;
-        h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-paintbrush"></i> ${p.name} — CSS</div><div class="code-panel-body" id="code-css-${p.id}">${esc(c.css)}</div></div>`;
-        h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-gear"></i> ${p.name} — JS</div><div class="code-panel-body" id="code-js-${p.id}">${esc(c.js)}</div></div>`;
-      });
-      if (isPrem) {
-        h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-robot"></i> بهبود با AI (پرومیوم)</div><div class="code-panel-body" style="padding:12px;"><div class="form-group"><label>توضیحات کلی سایت</label><textarea id="siteDesc" rows="3" style="width:100%;background:#fff;color:#0f172a;padding:8px;border-radius:6px;">${data.siteDesc||''}</textarea></div><button class="btn-ai" onclick="improveWithAI()"><i class="fa-solid fa-wand-magic-sparkles"></i> بهبود همه صفحات با AI</button></div></div>`;
-      }
-      ctr.innerHTML = h;
-    }
-    function editCode(pageId, type) {
-      let page = data.pages.find(p => p.id === pageId);
-      if (!page) return;
-      let c = genPC(page);
-      let content = type === 'html' ? c.html : type === 'css' ? c.css : c.js;
-      let newCode = prompt('ویرایش ' + type.toUpperCase() + ' (پرومیوم):', content);
-      if (newCode !== null) {
-        page.customCode = page.customCode || {};
-        page.customCode[type] = newCode;
-        alert('کد سفارشی ذخیره شد.');
-        genCP();
-      }
-    }
-    async function improveWithAI() {
-      let desc = document.getElementById('siteDesc')?.value || '';
-      if (!desc) { alert('لطفاً توضیحات سایت را وارد کنید.'); return; }
-      if (!confirm('با این کار، تغییرات AI قبلی پاک می‌شوند. ادامه می‌دهید؟')) return;
-      data.siteDesc = desc;
-      for (let page of data.pages) {
-        let c = genPC(page);
-        let prompt = `بهبود کد سایت با این توضیحات: "${desc}". کد فعلی HTML:\n${c.html}\n\nفقط کد HTML بهبود یافته را برگردان.`;
-        try {
-          let r = await fetch('https://text.pollinations.ai/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) });
-          let improved = await r.text();
-          if (improved && improved.trim() && !improved.includes('Queue full')) {
-            page.customCode = page.customCode || {};
-            page.customCode.html = improved;
-          }
-        } catch (e) {}
-      }
-      alert('بهبود با AI انجام شد. تب کد را ببینید.');
-      genCP();
-    }
-    function genPC(p) {
-      if (p.customCode) {
-        return { html: p.customCode.html || genRawHTML(p), css: p.customCode.css || genRawCSS(p), js: p.customCode.js || genRawJS(p) };
-      }
-      return { html: genRawHTML(p), css: genRawCSS(p), js: genRawJS(p) };
-    }
-    function genRawHTML(p) {
-      let ps = p.ps || {};
-      let html = '<!DOCTYPE html>\n<html lang="fa" dir="rtl">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + p.name + ' — BlockWeb</title>\n<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">\n<link rel="stylesheet" href="style.css">\n</head>\n<body>\n';
-      if (wiz && wiz.header === 'yes') html += '<header style="background:' + (ps.hc || '#6366f1') + ';padding:16px;color:#fff"><div style="max-width:1100px;margin:0 auto"><h1>' + (wiz.headerText || 'سایت من') + '</h1></div></header>\n';
-      html += '<main style="max-width:1100px;margin:0 auto;padding:16px">\n';
-      p.conts.forEach(c => {
-        let wrapStyle = c.layout === 'grid' ? 'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;' : c.layout === 'list' ? 'display:flex;flex-direction:column;gap:8px;' : 'position:relative;';
-        let wrapTag = c.contType === 'button' ? 'a href="' + (c.buttonLink || '#') + '" style="text-decoration:none;display:block;"' : 'div';
-        let wrapClose = c.contType === 'button' ? 'a' : 'div';
-        html += '<' + wrapTag + ' style="' + wrapStyle + '">\n';
-        c.rows.forEach(r => {
-          if (r.res.ic) html += '<i class="fa-solid ' + r.res.ic + '" style="color:' + r.res.cl + ';font-size:24px;"></i>\n';
-          if (r.res.im) html += '<img src="' + r.res.im + '" style="max-width:100%;' + (r.vis.st?.w ? 'width:' + r.vis.st.w + ';' : '') + (r.vis.st?.h ? 'height:' + r.vis.st.h + ';' : '') + '">\n';
-          let st = r.vis.st || {}, txt = r.vis.txt || '';
-          let inlineStyle = 'font-size:' + st.fs + ';text-align:' + st.ta + ';' + (st.w ? 'width:' + st.w + ';' : '') + (st.h ? 'height:' + st.h + ';' : '');
-          if (r.scr.tp === 'floating') inlineStyle += 'position:fixed;' + (r.scr.fpos === 'br' ? 'bottom:' + r.scr.fy + 'px;right:' + r.scr.fx + 'px;' : r.scr.fpos === 'bl' ? 'bottom:' + r.scr.fy + 'px;left:' + r.scr.fx + 'px;' : r.scr.fpos === 'tr' ? 'top:' + r.scr.fy + 'px;right:' + r.scr.fx + 'px;' : 'top:' + r.scr.fy + 'px;left:' + r.scr.fx + 'px;') + 'z-index:999;';
-          if (r.stg) {
-            html += '<form onsubmit="handleSubmit(event)" style="display:flex;flex-direction:column;gap:8px;max-width:400px;">\n';
-            (r.stg.col || 'name,email').split(',').forEach(col => { html += '<input name="' + col.trim() + '" placeholder="' + col.trim() + '" style="padding:8px;border:1px solid #ddd;border-radius:6px;">\n'; });
-            html += '<button type="submit" style="padding:10px;background:' + r.res.cl + ';color:#fff;border:none;border-radius:6px;">ارسال</button>\n</form>\n';
-          } else if (r.scr.tp === 'heading') html += '<h2 style="' + inlineStyle + '">' + txt + '</h2>\n';
-          else if (r.scr.tp === 'button') html += '<a href="' + (r.scr.lk || '#') + '"><button style="' + inlineStyle + 'padding:10px 20px;background:' + r.res.cl + ';color:#fff;border:none;border-radius:8px;">' + (txt || 'کلیک') + '</button></a>\n';
-          else if (r.scr.tp === 'card') html += '<div style="' + inlineStyle + 'padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">' + txt + '</div>\n';
-          else html += '<p style="' + inlineStyle + '">' + txt + '</p>\n';
-        });
-        html += '</' + wrapClose + '>\n';
-      });
-      html += '</main>\n';
-      if (adsList && adsList.length > 0) {
-        let ad = adsList[Math.floor(Math.random() * adsList.length)];
-        html += '<a href="' + (ad.linkUrl || '#') + '" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:#fef2f2;border-top:1px dashed #f43f5e;text-decoration:none;color:#f43f5e;font-size:12px;justify-content:center;"><img src="' + (ad.imageUrl || '') + '" style="width:32px;height:32px;border-radius:6px;"> ' + ad.title + '</a>\n';
-      } else {
-        html += '<a href="https://eitaa.com/Amirmahdi_code" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:#fef2f2;border-top:1px dashed #f43f5e;text-decoration:none;color:#f43f5e;font-size:12px;justify-content:center;"><img src="https://cdn.imgurl.ir/uploads/m87412_4b5310ee-fa5a-4d2e-a58c-a9337ddb4f92.png" style="width:32px;height:32px;border-radius:6px;"> حمایت از سازنده BlockWeb</a>\n';
-      }
-      if (wiz && wiz.footer !== '1') html += '<footer style="background:' + (ps.fc || '#1e293b') + ';padding:16px;color:#fff;text-align:center;margin-top:20px"><p style="opacity:0.5;font-size:12px;">ساخته شده با BlockWeb</p></footer>\n';
-      html += '<script src="script.js"><\/script>\n</body>\n</html>';
-      return html;
-    }
-    function genRawCSS(p) {
-      let ps = p.ps || {};
-      let css = '*{margin:0;padding:0;box-sizing:border-box}\nbody{font-family:sans-serif;background:' + (ps.bc || '#f8fafc') + ';color:#0f172a;' + (ps.an === 'fade' ? 'animation:fadeIn 1s ease;' : ps.an === 'slide' ? 'animation:slideIn 1s ease;' : '') + '}\n@keyframes fadeIn{from{opacity:0}to{opacity:1}}\n@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}\n';
-      return css;
-    }
-    function genRawJS(p) {
-      let js = '';
-      let srs = []; p.conts.forEach(c => { c.rows.forEach(r => { if (r.stg) srs.push(r); }); });
-      if (srs.length > 0) { js += 'async function handleSubmit(e){e.preventDefault();let d={};e.target.querySelectorAll("input").forEach(i=>{d[i.name]=i.value});try{'; srs.forEach((r, i) => { js += (i > 0 ? '// یا ' : '') + 'await fetch("' + (r.stg.api || '') + '",{method:"POST",body:JSON.stringify(d)});\n'; }); js += 'alert("ثبت شد.")}catch(e){alert("خطا")}}\n'; }
-      return js;
-    }
+    function RT() { let conts = GC(), ctr = document.getElementById('treeContainer'); if (conts.length === 0) { ctr.innerHTML = ''; document.getElementById('emptyState').style.display = ''; document.getElementById('dropZone').classList.remove('has-blocks'); return; } document.getElementById('emptyState').style.display = 'none'; document.getElementById('dropZone').classList.add('has-blocks'); ctr.innerHTML = conts.map((c, ci) => { let typeLabel = c.contType === 'button' ? 'دکمه‌ای' : c.contType === 'list' ? 'لیستی' : c.contType === 'logic' ? 'منطق‌دار' : 'ساده'; return `<div class="container-block"><div class="container-header"><span class="block-badge badge-green">${typeLabel} ${ci+1}</span><span class="block-badge badge-red" onclick="chL(${ci})">${c.layout==='grid'?'جدولی':c.layout==='list'?'لیستی':'مختصاتی'}</span><button class="btn-add-row" onclick="addR(${ci})"><i class="fa-solid fa-plus"></i> ردیف</button><button class="btn-add-row" style="border-color:var(--amber);color:var(--amber);" onclick="addSt(${ci})"><i class="fa-solid fa-database"></i> ذخیره</button><button style="background:none;border:none;cursor:pointer;color:var(--red);margin-right:auto;" onclick="delC(${ci})"><i class="fa-solid fa-trash-can"></i></button></div>${c.rows.map((r, ri) => `<div class="tree-row"><div class="connector-v" style="align-self:stretch;"></div><div class="node-badge ${r.stg?'badge-orange':'badge-blue'}" onclick="openM(${ci},${ri},'${r.stg?'stg':'scr'}')"><button class="node-delete" onclick="event.stopPropagation();delR(${ci},${ri})"><i class="fa-solid fa-xmark"></i></button><i class="fa-solid ${r.stg?'fa-database':'fa-code'}"></i> ${r.stg?'ذخیره':r.scr.tp||'اسکریپت'}</div><div class="connector-h"></div><div class="node-badge badge-violet" onclick="openM(${ci},${ri},'res')"><i class="fa-solid fa-icons"></i> منابع</div><div class="connector-h"></div><div class="node-badge badge-yellow" onclick="openM(${ci},${ri},'vis')"><i class="fa-solid fa-palette"></i> ${r.vis.txt?.substring(0,15)||'ظاهری'}</div><div class="connector-v" style="align-self:stretch;"></div></div>`).join('')}</div>`; }).join(''); }
+    function switchTab(tab) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active')); if (tab === 'preview' && !isPrem) return; document.getElementById('tab-' + tab).classList.add('active'); event.currentTarget.classList.add('active'); if (tab === 'code') genCP(); if (tab === 'preview') upPV(); }
+    async function loadAds() { try { let r = await fetch(ADS_API); adsList = await r.json(); } catch (e) { adsList = []; } }
+    function genCP() { let ctr = document.getElementById('codePanels'), h = ''; data.pages.forEach(p => { let c = genPC(p); h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-file-code"></i> ${p.name} — HTML ${isPrem?`<button class="btn-h btn-save" style="margin-right:auto;font-size:9px;" onclick="editCode('${p.id}','html')">ویرایش</button>`:''}</div><div class="code-panel-body" id="code-html-${p.id}">${esc(c.html)}</div></div>`; h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-paintbrush"></i> ${p.name} — CSS</div><div class="code-panel-body" id="code-css-${p.id}">${esc(c.css)}</div></div>`; h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-gear"></i> ${p.name} — JS</div><div class="code-panel-body" id="code-js-${p.id}">${esc(c.js)}</div></div>`; }); if (isPrem) { h += `<div class="code-panel"><div class="code-panel-header"><i class="fa-solid fa-robot"></i> بهبود با AI (پرومیوم)</div><div class="code-panel-body" style="padding:12px;"><div class="form-group"><label>توضیحات کلی سایت</label><textarea id="siteDesc" rows="3" style="width:100%;background:#fff;color:#0f172a;padding:8px;border-radius:6px;">${data.siteDesc||''}</textarea></div><button class="btn-ai" onclick="improveWithAI()"><i class="fa-solid fa-wand-magic-sparkles"></i> بهبود همه صفحات با AI</button></div></div>`; } ctr.innerHTML = h; }
+    function editCode(pageId, type) { let page = data.pages.find(p => p.id === pageId); if (!page) return; let c = genPC(page); let content = type === 'html' ? c.html : type === 'css' ? c.css : c.js; let newCode = prompt('ویرایش ' + type.toUpperCase() + ' (پرومیوم):', content); if (newCode !== null) { page.customCode = page.customCode || {}; page.customCode[type] = newCode; alert('کد سفارشی ذخیره شد.'); genCP(); } }
+    async function improveWithAI() { let desc = document.getElementById('siteDesc')?.value || ''; if (!desc) { alert('لطفاً توضیحات سایت را وارد کنید.'); return; } if (!confirm('با این کار، تغییرات AI قبلی پاک می‌شوند. ادامه می‌دهید؟')) return; data.siteDesc = desc; for (let page of data.pages) { let c = genPC(page); let prompt = `بهبود کد سایت با این توضیحات: "${desc}". کد فعلی HTML:\n${c.html}\n\nفقط کد HTML بهبود یافته را برگردان.`; try { let r = await fetch('https://text.pollinations.ai/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) }); let improved = await r.text(); if (improved && improved.trim() && !improved.includes('Queue full')) { page.customCode = page.customCode || {}; page.customCode.html = improved; } } catch (e) {} } alert('بهبود با AI انجام شد. تب کد را ببینید.'); genCP(); }
+    function genPC(p) { if (p.customCode) { return { html: p.customCode.html || genRawHTML(p), css: p.customCode.css || genRawCSS(p), js: p.customCode.js || genRawJS(p) }; } return { html: genRawHTML(p), css: genRawCSS(p), js: genRawJS(p) }; }
+    function genRawHTML(p) { let ps = p.ps || {}; let html = '<!DOCTYPE html>\n<html lang="fa" dir="rtl">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + p.name + ' — BlockWeb</title>\n<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">\n<link rel="stylesheet" href="style.css">\n</head>\n<body>\n'; if (wiz && wiz.header === 'yes') html += '<header style="background:' + (ps.hc || '#6366f1') + ';padding:16px;color:#fff"><div style="max-width:1100px;margin:0 auto"><h1>' + (wiz.headerText || 'سایت من') + '</h1></div></header>\n'; html += '<main style="max-width:1100px;margin:0 auto;padding:16px">\n'; p.conts.forEach(c => { let wrapStyle = c.layout === 'grid' ? 'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;' : c.layout === 'list' ? 'display:flex;flex-direction:column;gap:8px;' : 'position:relative;'; let wrapTag = c.contType === 'button' ? 'a href="' + (c.buttonLink || '#') + '" style="text-decoration:none;display:block;"' : 'div'; let wrapClose = c.contType === 'button' ? 'a' : 'div'; html += '<' + wrapTag + ' style="' + wrapStyle + '">\n'; c.rows.forEach(r => { if (r.res.ic) html += '<i class="fa-solid ' + r.res.ic + '" style="color:' + r.res.cl + ';font-size:24px;"></i>\n'; if (r.res.im) html += '<img src="' + r.res.im + '" style="max-width:100%;' + (r.vis.st?.w ? 'width:' + r.vis.st.w + ';' : '') + (r.vis.st?.h ? 'height:' + r.vis.st.h + ';' : '') + '">\n'; let st = r.vis.st || {}, txt = r.vis.txt || ''; let inlineStyle = 'font-size:' + st.fs + ';text-align:' + st.ta + ';' + (st.w ? 'width:' + st.w + ';' : '') + (st.h ? 'height:' + st.h + ';' : ''); if (r.scr.tp === 'floating') inlineStyle += 'position:fixed;' + (r.scr.fpos === 'br' ? 'bottom:' + r.scr.fy + 'px;right:' + r.scr.fx + 'px;' : r.scr.fpos === 'bl' ? 'bottom:' + r.scr.fy + 'px;left:' + r.scr.fx + 'px;' : r.scr.fpos === 'tr' ? 'top:' + r.scr.fy + 'px;right:' + r.scr.fx + 'px;' : 'top:' + r.scr.fy + 'px;left:' + r.scr.fx + 'px;') + 'z-index:999;'; if (r.stg) { html += '<form onsubmit="handleSubmit(event)" style="display:flex;flex-direction:column;gap:8px;max-width:400px;">\n'; (r.stg.col || 'name,email').split(',').forEach(col => { html += '<input name="' + col.trim() + '" placeholder="' + col.trim() + '" style="padding:8px;border:1px solid #ddd;border-radius:6px;">\n'; }); html += '<button type="submit" style="padding:10px;background:' + r.res.cl + ';color:#fff;border:none;border-radius:6px;">ارسال</button>\n</form>\n'; } else if (r.scr.tp === 'heading') html += '<h2 style="' + inlineStyle + '">' + txt + '</h2>\n'; else if (r.scr.tp === 'button') html += '<a href="' + (r.scr.lk || '#') + '"><button style="' + inlineStyle + 'padding:10px 20px;background:' + r.res.cl + ';color:#fff;border:none;border-radius:8px;">' + (txt || 'کلیک') + '</button></a>\n'; else if (r.scr.tp === 'card') html += '<div style="' + inlineStyle + 'padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">' + txt + '</div>\n'; else html += '<p style="' + inlineStyle + '">' + txt + '</p>\n'; }); html += '</' + wrapClose + '>\n'; }); html += '</main>\n'; if (adsList && adsList.length > 0) { let ad = adsList[Math.floor(Math.random() * adsList.length)]; html += '<a href="' + (ad.linkUrl || '#') + '" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:#fef2f2;border-top:1px dashed #f43f5e;text-decoration:none;color:#f43f5e;font-size:12px;justify-content:center;"><img src="' + (ad.imageUrl || '') + '" style="width:32px;height:32px;border-radius:6px;"> ' + ad.title + '</a>\n'; } else { html += '<a href="https://eitaa.com/Amirmahdi_code" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:#fef2f2;border-top:1px dashed #f43f5e;text-decoration:none;color:#f43f5e;font-size:12px;justify-content:center;"><img src="https://cdn.imgurl.ir/uploads/m87412_4b5310ee-fa5a-4d2e-a58c-a9337ddb4f92.png" style="width:32px;height:32px;border-radius:6px;"> حمایت از سازنده BlockWeb</a>\n'; } if (wiz && wiz.footer !== '1') html += '<footer style="background:' + (ps.fc || '#1e293b') + ';padding:16px;color:#fff;text-align:center;margin-top:20px"><p style="opacity:0.5;font-size:12px;">ساخته شده با BlockWeb</p></footer>\n'; html += '<script src="script.js"><\/script>\n</body>\n</html>'; return html; }
+    function genRawCSS(p) { let ps = p.ps || {}; let css = '*{margin:0;padding:0;box-sizing:border-box}\nbody{font-family:sans-serif;background:' + (ps.bc || '#f8fafc') + ';color:#0f172a;' + (ps.an === 'fade' ? 'animation:fadeIn 1s ease;' : ps.an === 'slide' ? 'animation:slideIn 1s ease;' : '') + '}\n@keyframes fadeIn{from{opacity:0}to{opacity:1}}\n@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}\n'; return css; }
+    function genRawJS(p) { let js = ''; let srs = []; p.conts.forEach(c => { c.rows.forEach(r => { if (r.stg) srs.push(r); }); }); if (srs.length > 0) { js += 'async function handleSubmit(e){e.preventDefault();let d={};e.target.querySelectorAll("input").forEach(i=>{d[i.name]=i.value});try{'; srs.forEach((r, i) => { js += (i > 0 ? '// یا ' : '') + 'await fetch("' + (r.stg.api || '') + '",{method:"POST",body:JSON.stringify(d)});\n'; }); js += 'alert("ثبت شد.")}catch(e){alert("خطا")}}\n'; } return js; }
     function esc(t) { return t.replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function upPV() { if (!isPrem) return; let c = genPC(GP()); document.getElementById('previewFrame').srcdoc = c.html.replace('<link rel="stylesheet" href="style.css">', '<style>' + c.css + '</style>').replace('<script src="script.js"></script>', '<script>' + c.js + '<\/script>'); }
     function dlAll() { data.pages.forEach((p, i) => { let c = genPC(p), pf = i === 0 ? 'index' : p.name.replace(/\s/g, '_'); dlF(pf + '.html', c.html); dlF(pf + '.css', c.css); if (c.js.trim()) dlF(pf + '.js', c.js); }); }
     function dlF(fn, ct) { let b = new Blob([ct], { type: 'text/plain' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = fn; a.click(); URL.revokeObjectURL(u); }
     async function saveBlocks() { if (!pid) return; try { await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'saveProjectBlocks', projectId: pid, blocks: JSON.stringify(data) }) }); alert('ذخیره شد.'); } catch (e) { alert('خطا.'); } }
     document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeM(); });
-    async function init() {
-      user = sess(); if (!user) { window.location.href = '../login.html'; return; }
-      isPrem = user.userType === 'owner' || user.userType === 'vip' || (user.purchasedPlans && user.purchasedPlans.some(p => p !== 'plan_free'));
-      domain = new URLSearchParams(window.location.search).get('domain');
-      if (!domain) { window.location.href = '../dashboard.html'; return; }
-      await loadAds();
-      try {
-        let r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getProjectByDomain', domain }) });
-        let d = await r.json();
-        if (d && d.success) {
-          pid = d.projectId;
-          if (d.settings && d.settings !== '') {
-            wiz = JSON.parse(d.settings);
-            if (wiz.support === 'yes' && !data.pages.some(p => p.name === 'پشتیبانی')) {
-              data.pages.push({ id: 'pg_support', name: 'پشتیبانی', conts: [{ id: 'c_support', contType: 'simple', layout: 'list', rows: [{ id: 'r_support', vis: { txt: 'پشتیبانی آنلاین', st: { fs: '18px', ta: 'center', w: '', h: '' } }, scr: { tp: 'heading', an: 'fade', lk: '', fl: false }, res: { cl: '#6366f1', ic: 'fa-headset', im: '', sd: '' }, stg: null }] }], ps: { hc: '#6366f1', bc: '#f8fafc', fc: '#1e293b', an: 'fade' } });
-            }
-          }
-          if (d.blocks && d.blocks !== '') { try { data = JSON.parse(d.blocks); if (!data.pages) data = { pages: [{ id: 'pg_1', name: 'صفحه اصلی', conts: [], ps: { hc: '#6366f1', bc: '#f8fafc', fc: '#1e293b', an: '' } }], siteDesc: '' }; } catch (e) {} }
-        }
-      } catch (e) {}
-      if (isPrem) {
-        document.getElementById('previewLocked').style.display = 'none';
-        document.getElementById('previewFrame').style.display = '';
-        document.getElementById('tabPreview').classList.remove('locked');
-        document.getElementById('btnLogicCont').classList.remove('locked');
-        document.getElementById('btnLogicCont').querySelector('.lock-badge').innerHTML = '<i class="fa-solid fa-unlock"></i> فعال';
-      }
-      RA();
-    }
+    async function init() { user = sess(); if (!user) { window.location.href = '../login.html'; return; } isPrem = user.userType === 'owner' || user.userType === 'vip' || (user.purchasedPlans && user.purchasedPlans.some(p => p !== 'plan_free')); domain = new URLSearchParams(window.location.search).get('domain'); if (!domain) { window.location.href = '../dashboard.html'; return; } await loadAds(); try { let r = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'getProjectByDomain', domain }) }); let d = await r.json(); if (d && d.success) { pid = d.projectId; if (d.settings && d.settings !== '') { wiz = JSON.parse(d.settings); if (wiz.support === 'yes' && !data.pages.some(p => p.name === 'پشتیبانی')) { data.pages.push({ id: 'pg_support', name: 'پشتیبانی', conts: [{ id: 'c_support', contType: 'simple', layout: 'list', rows: [{ id: 'r_support', vis: { txt: 'پشتیبانی آنلاین', st: { fs: '18px', ta: 'center', w: '', h: '' } }, scr: { tp: 'heading', an: 'fade', lk: '', fl: false }, res: { cl: '#6366f1', ic: 'fa-headset', im: '', sd: '' }, stg: null }] }], ps: { hc: '#6366f1', bc: '#f8fafc', fc: '#1e293b', an: 'fade' } }); } } if (d.blocks && d.blocks !== '') { try { data = JSON.parse(d.blocks); if (!data.pages) data = { pages: [{ id: 'pg_1', name: 'صفحه اصلی', conts: [], ps: { hc: '#6366f1', bc: '#f8fafc', fc: '#1e293b', an: '' } }], siteDesc: '' }; } catch (e) {} } } } catch (e) {} if (isPrem) { document.getElementById('previewLocked').style.display = 'none'; document.getElementById('previewFrame').style.display = ''; document.getElementById('tabPreview').classList.remove('locked'); document.getElementById('btnLogicCont').classList.remove('locked'); document.getElementById('btnLogicCont').querySelector('.lock-badge').innerHTML = '<i class="fa-solid fa-unlock"></i> فعال'; } RA(); }
     init();
   </script>
-
 </body>
 </html>
